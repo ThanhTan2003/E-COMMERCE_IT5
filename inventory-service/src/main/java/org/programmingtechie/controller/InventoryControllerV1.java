@@ -55,9 +55,9 @@ public class InventoryControllerV1
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String importStock(@RequestBody ImportHistoryRequest importHistoryRequest)
+    public String importStock(@RequestBody List<ImportHistoryRequest> importHistoryRequests)
     {
-        inventoryServiceV1.importStock(importHistoryRequest);
+        inventoryServiceV1.importStock(importHistoryRequests);
         return "Đã nhập kho thành công!";
     }
 

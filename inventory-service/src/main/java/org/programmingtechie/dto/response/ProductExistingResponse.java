@@ -16,6 +16,6 @@ public class ProductExistingResponse
     private String id;
     private String name;
     private Boolean isExisting;
-    private BigDecimal price;
+    private Double price;
     private String description;
 }
