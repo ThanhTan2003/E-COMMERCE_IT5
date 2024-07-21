@@ -1,0 +1,294 @@
+package org.programmingtechie.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.programmingtechie.dto.request.ExportProductRequest;
+import org.programmingtechie.dto.request.ImportHistoryRequest;
+import org.programmingtechie.dto.response.InventoryResponse;
+import org.programmingtechie.dto.response.ProductExistingResponse;
+import org.programmingtechie.model.ExportHistory;
+import org.programmingtechie.model.ImportHistory;
+import org.programmingtechie.model.Inventory;
+import org.programmingtechie.repository.ExportHistoryRepository;
+import org.programmingtechie.repository.ImportHistoryRepository;
+import org.programmingtechie.repository.InventoryRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+@Transactional
+public class InventoryServiceV1 {
+    final InventoryRepository inventoryRepository;
+    final ImportHistoryRepository importHistoryRepository;
+    final ExportHistoryRepository exportHistoryRepository;
+
+    final WebClient.Builder webClientBuilder;
+
+    // Kiểm tra danh sách productIds với fallback nếu product-service không hoạt động
+    public List<ProductExistingResponse> checkProductExistingWithFallback(List<String> productIds) {
+        try {
+            return checkProductExisting(productIds);
+        } catch (Exception e) {
+            return productIds.stream()
+                    .map(productId -> new ProductExistingResponse(productId, "Chưa xác định", false, null, null))
+                    .toList();
+        }
+    }
+
+    // Kiểm tra tồn kho 1 sản phẩm
+    @Transactional(readOnly = true)
+    public InventoryResponse isInStock(String product_id)
+    {
+
+        Optional<Inventory> inventory = inventoryRepository.findByProductId(product_id);
+
+        if (inventory.isEmpty()) {
+            return InventoryResponse.builder()
+                    .product_id(product_id)
+                    .isInStock(false)
+                    .quantity(0)
+                    .build();
+        }
+
+        Inventory inv = inventory.get();
+        Boolean inStock = inv.getQuantity() > 0;
+        return InventoryResponse.builder()
+                .product_id(inv.getProduct_id())
+                .isInStock(inStock)
+                .quantity(inv.getQuantity())
+                .build();
+    }
+
+    // Kiểm tra tồn kho nhiều sản phẩm
+    @Transactional(readOnly = true)
+    public List<InventoryResponse> isInStock(List<String> product_id)
+    {
+
+        List<Inventory> inventories = inventoryRepository.findByProductId(product_id);
+
+        return inventories.stream()
+                .map(inventory -> {
+                    Boolean inStock = inventory.getQuantity() > 0;
+                    return InventoryResponse.builder()
+                            .product_id(inventory.getProduct_id())
+                            .isInStock(inStock)
+                            .quantity(inventory.getQuantity())
+                            .build();
+                })
+                .toList();
+    }
+
+    // lấy danh sách thông tin sản phẩm tồn kho
+    public List<InventoryResponse> getAll()
+    {
+        return inventoryRepository.findAll().stream().map(inventory -> {
+            List<String> productIds = new ArrayList<>();
+            productIds.add(inventory.getProduct_id());
+            List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
+
+            String productName = productExistingResponse.get(0).getName().isEmpty() ? "Chưa xác định" : productExistingResponse.get(0).getName();
+            return InventoryResponse.builder()
+                    .id(inventory.getId())
+                    .product_id(inventory.getProduct_id())
+                    .product_name(productName)
+                    .quantity(inventory.getQuantity())
+                    .build();
+        }).toList();
+    }
+
+
+    // Lấy thông tin tồn kho theo ID
+    public InventoryResponse getInventoryById(String id)
+    {
+        Optional<Inventory> inventory = inventoryRepository.findById(id);
+        if(inventory.isEmpty())
+        {
+            throw new IllegalArgumentException("Không tìm thấy thông tin tồn kho!");
+        }
+        List<String> productIds = new ArrayList<>();
+        productIds.add(inventory.get().getProduct_id());
+        List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
+
+        String productName = productExistingResponse.get(0).getName().isEmpty() ? "Chưa xác định" : productExistingResponse.get(0).getName();
+        return InventoryResponse.builder()
+                .id(inventory.get().getId())
+                .product_id(inventory.get().getProduct_id())
+                .product_name(productName)
+                .quantity(inventory.get().getQuantity())
+                .build();
+    }
+
+    // Lấy thông tin tồn kho theo product_id
+    public InventoryResponse getInventoryByProductId(String id)
+    {
+        Optional<Inventory> inventoryOptional = inventoryRepository.findByProductId(id);
+
+        if (inventoryOptional.isEmpty()) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin tồn kho!");
+        }
+
+        Inventory inventory = inventoryOptional.get();
+        List<String> productIds = new ArrayList<>();
+        productIds.add(inventory.getProduct_id());
+        List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
+
+        String productName = productExistingResponse.get(0).getName().isEmpty() ? "Chưa xác định" : productExistingResponse.get(0).getName();
+
+        return InventoryResponse.builder()
+                .id(inventory.getId())
+                .product_id(inventory.getProduct_id())
+                .product_name(productName)
+                .quantity(inventory.getQuantity())
+                .build();
+    }
+
+    // Kiểm tra hợp lệ thông tin khi nhập kho
+    void validCheckInventoryRequest(ImportHistoryRequest importHistoryRequest)
+    {
+        if(importHistoryRequest.getProduct_id() == null)
+            throw new IllegalArgumentException("Vui lòng nhập thông tin sản phẩm nhập kho!");
+
+        if(importHistoryRequest.getQuantity() == null)
+            throw new IllegalArgumentException("Vui lòng nhập số lượng sản phẩm nhập kho!");
+
+        if(importHistoryRequest.getQuantity() <= 0)
+            throw new IllegalArgumentException("Số lượng không hợp lệ!");
+
+    }
+
+    // Kiểm tra danh sách productIds có tồn tại trong product-service không?
+    List<ProductExistingResponse> checkProductExisting(List<String> productIds) {
+        ProductExistingResponse[] productResponses = webClientBuilder.build().get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/product/existing")
+                        .queryParam("list_product_id", String.join(",", productIds)) // Sử dụng String.join để nối các ID với dấu phẩy
+                        .build())
+                .retrieve()
+                .bodyToMono(ProductExistingResponse[].class)
+                .block();
+
+        if (productResponses == null) {
+            throw new IllegalStateException("Không thể kiểm tra sản phẩm. Vui lòng thử lại sau.");
+        }
+
+        for (ProductExistingResponse productResponse : productResponses) {
+            if (!productResponse.getIsExisting()) {
+                throw new IllegalStateException(
+                        String.format("Sản phẩm có mã id %s không tồn tại. Vui lòng kiểm tra lại!",
+                                productResponse.getId()));
+            }
+        }
+        return Arrays.asList(productResponses);
+    }
+
+    // Nhập kho
+    public void importStock(List<ImportHistoryRequest> importHistoryRequests)
+    {
+        List<String> productIds = importHistoryRequests.stream()
+                .map(ImportHistoryRequest::getProduct_id)
+                .toList();
+
+        // Kiểm tra sự tồn tại của các sản phẩm
+        List<ProductExistingResponse> pProductExistingResponse = checkProductExisting(productIds);
+
+        for (ImportHistoryRequest importHistoryRequest : importHistoryRequests) {
+            validCheckInventoryRequest(importHistoryRequest);
+
+            Optional<Inventory> inventoryOptional = inventoryRepository.findByProductId(importHistoryRequest.getProduct_id());
+
+            if (inventoryOptional.isEmpty()) {
+                ImportHistory importHistory = ImportHistory.builder()
+                        .product_id(importHistoryRequest.getProduct_id())
+                        .quantity(importHistoryRequest.getQuantity())
+                        .note(importHistoryRequest.getNote())
+                        .build();
+                importHistoryRepository.save(importHistory);
+
+                Inventory inventory = Inventory.builder()
+                        .product_id(importHistoryRequest.getProduct_id())
+                        .quantity(importHistoryRequest.getQuantity())
+                        .build();
+                inventoryRepository.save(inventory);
+            } else {
+                Inventory inventory = inventoryOptional.get();
+                Integer quantity = inventory.getQuantity() + importHistoryRequest.getQuantity();
+                inventory.setQuantity(quantity);
+                inventoryRepository.save(inventory);
+            }
+        }
+    }
+
+    // Cập nhật số lượng tồn kho của một sản phẩm
+    void updateInventory(String product_id, Integer quantity)
+    {
+        Optional<Inventory> inventory = inventoryRepository.findByProductId(product_id);
+
+        if(inventory.isEmpty())
+            throw new IllegalArgumentException("sản phẩm có id " + product_id + " không có sẵn trong kho!");
+
+        Inventory inventory1 = inventory.get();
+        inventory1.setQuantity(quantity);
+        try
+        {
+            inventoryRepository.save(inventory1);
+        }
+        catch (Exception ignored)
+        {
+
+        }
+    }
+
+    // Ghi lịch sử xuất kho (ExportHistory) cho sản phẩm
+    public void createExportHistory(List<ExportProductRequest> exportProductRequest)
+    {
+        for (ExportProductRequest exportProductRequest1 : exportProductRequest)
+        {
+            ExportHistory exportHistory = ExportHistory.builder()
+                    .product_id(exportProductRequest1.getProduct_id())
+                    .quantity(exportProductRequest1.getQuantity())
+                    .build();
+            exportHistoryRepository.save(exportHistory);
+        }
+    }
+
+    // Xuất kho sản phẩm khi order-service gọi đến
+    public Boolean exportProduct(List<ExportProductRequest> exportProductRequest)
+    {
+        int index = 0;
+
+        List<String> productIds = exportProductRequest.stream().map(
+                ExportProductRequest::getProduct_id
+        ).toList();
+
+        List<InventoryResponse> inventoryResponses = isInStock(productIds);
+        for(InventoryResponse inventoryResponse : inventoryResponses)
+        {
+            if(!inventoryResponse.getIsInStock())
+                throw new IllegalArgumentException("sản phẩm " + inventoryResponse.getProduct_id() + " - " + exportProductRequest.get(index).getProduct_name() + " không có sẵn trong kho!");
+
+            if(inventoryResponse.getQuantity() < exportProductRequest.get(index).getQuantity())
+                throw new IllegalArgumentException("sản phẩm " + inventoryResponse.getProduct_id() + " - " + exportProductRequest.get(index).getProduct_name() + " không đủ số lượng trong kho!");
+            index++;
+        }
+
+        index = 0;
+
+        for(ExportProductRequest export : exportProductRequest)
+        {
+            Integer quantity = inventoryResponses.get(0).getQuantity() - export.getQuantity();
+            updateInventory(export.getProduct_id(), quantity);
+        }
+
+        createExportHistory(exportProductRequest);
+
+        return true;
+    }
+}

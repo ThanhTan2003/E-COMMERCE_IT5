@@ -1,6 +1,5 @@
-package org.programmingtechie.dto;
+package org.programmingtechie.dto.response;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,8 +10,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CustomerRequest
+@Builder
+public class CustomerResponse
 {
+    private String id;
+
     private String fullName;
 
     private String address;

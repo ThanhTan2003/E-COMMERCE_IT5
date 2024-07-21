@@ -2,11 +2,13 @@ package org.programmingtechie.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.programmingtechie.dto.CustomerRequest;
+import org.programmingtechie.dto.request.CustomerRequest;
+import org.programmingtechie.dto.response.CustomerOrderList;
 import org.programmingtechie.model.Customer;
 import org.programmingtechie.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,8 +18,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class CustomerService_V1 {
+public class CustomerServiceV1 {
     final CustomerRepository customerRepository;
+    final WebClient.Builder webClientBuilder;
+
+
     public void createProduct(CustomerRequest customerRequest) {
         validCheckCustomerRequest(customerRequest);
 
@@ -152,5 +157,12 @@ public class CustomerService_V1 {
             throw new IllegalArgumentException("Không tìm thấy thông tin khách hàng! " + email);
         }
         return customer.get();
+    }
+
+    public CustomerOrderList getOrderList(String id)
+    {
+        CustomerOrderList customerOrderList = null;
+
+        return customerOrderList;
     }
 }
