@@ -17,7 +17,7 @@ import java.util.UUID;
 @Data
 @Table(name = "export_history")
 @Entity
-public class export_history {
+public class ExportHistory {
     @Id
     @Column(nullable = false, length = 36)
     private String id;
@@ -30,9 +30,6 @@ public class export_history {
 
     @Column(nullable = false)
     private LocalDateTime date;
-
-    @Column(length = 150)
-    private String note;
 
     @PrePersist
     private void ensureId() {
