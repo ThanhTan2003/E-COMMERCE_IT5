@@ -4,13 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.programmingtechie.dto.request.CustomerRequest;
 import org.programmingtechie.dto.response.CustomerOrderList;
+import org.programmingtechie.dto.response.CustomerResponse;
+import org.programmingtechie.dto.response.OrderResponse;
 import org.programmingtechie.model.Customer;
 import org.programmingtechie.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -161,8 +165,48 @@ public class CustomerServiceV1 {
 
     public CustomerOrderList getOrderList(String id)
     {
-        CustomerOrderList customerOrderList = null;
+        Optional<Customer> customer = customerRepository.findById(id);
 
-        return customerOrderList;
+        if(customer.isEmpty())
+            throw new IllegalArgumentException("Không tìm thấy khách hàng có id là " + id + "!");
+
+        try
+        {
+            OrderResponse[] orderResponses = webClientBuilder.build().get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/api/v1/order")
+                            .queryParam("list_product_id", String.join(",", id))
+                            .build())
+                    .retrieve()
+                    .bodyToMono(OrderResponse[].class)
+                    .block();
+
+            if (orderResponses == null) {
+                throw new IllegalStateException("Không có đơn hàng!");
+            }
+            CustomerResponse customerResponse = CustomerResponse.builder()
+                    .id(customer.get().getId())
+                    .fullName(customer.get().getFullName())
+                    .address(customer.get().getAddress())
+                    .phoneNumber(customer.get().getPhoneNumber())
+                    .email(customer.get().getEmail())
+                    .dateOfBirth(customer.get().getDateOfBirth())
+                    .gender(customer.get().getGender())
+                    .build();
+
+            return CustomerOrderList.builder()
+                    .customerResponse(customerResponse)
+                    .orderResponses(Arrays.stream(orderResponses).toList())
+                    .build();
+        }
+        catch (WebClientException e) {
+            log.info("ERROR - Xảy ra lỗi khi giao tiếp với order-service: {}", e.getMessage());
+
+            throw new IllegalArgumentException("Dịch vụ quản lý hóa đơn (order-service) không khả dụng. Vui lòng kiểm tra hoặc thử lại sau!");
+        } catch (Exception e) {
+            log.info("ERROR - Xảy ra lỗi khi giao tiếp với order-service: {}", e.getMessage());
+
+            throw new IllegalArgumentException("Có lỗi xảy ra khi kiểm tra đơn hàng. Vui lòng thử lại sau!");
+        }
     }
 }

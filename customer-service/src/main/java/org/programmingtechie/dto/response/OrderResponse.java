@@ -15,6 +15,8 @@ public class OrderResponse
 {
     private String id;
 
+    private String customer_id;
+
     private LocalDateTime date;
 
     private String status_handle;
