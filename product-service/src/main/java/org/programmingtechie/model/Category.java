@@ -16,7 +16,7 @@ public class Category {
     @Column(length = 36)
     private String id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false,unique = true ,length = 100)
     private String name;
 
     @Column(nullable = false)

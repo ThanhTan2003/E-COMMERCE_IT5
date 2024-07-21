@@ -10,6 +10,9 @@ import lombok.*;
 @NoArgsConstructor
 public class ProductRequest {
     private String name;
+    private String categoryId;
     private String description;
     private BigDecimal price;
+    private String statusBusiness;
+    private String statusInStock;
 }
