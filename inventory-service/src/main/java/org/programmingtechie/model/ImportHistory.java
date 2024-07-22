@@ -15,7 +15,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Data
-@Table(name = "import_history")
+@Table(name = "import_history", indexes = {
+        @Index(name = "idx_product_id", columnList = "product_id"),
+        @Index(name = "idx_date", columnList = "date")
+})
 @Entity
 public class ImportHistory {
     @Id

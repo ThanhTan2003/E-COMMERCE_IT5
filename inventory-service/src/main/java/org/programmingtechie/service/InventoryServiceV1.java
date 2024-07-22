@@ -40,7 +40,7 @@ public class InventoryServiceV1 {
             return checkProductExisting(productIds);
         } catch (Exception e) {
             return productIds.stream()
-                    .map(productId -> new ProductExistingResponse(productId, "Chưa xác định",null, null, false, null, null))
+                    .map(productId -> new ProductExistingResponse(productId, "...",null, null, false, null, null))
                     .toList();
         }
     }

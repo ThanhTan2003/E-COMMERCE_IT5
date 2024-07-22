@@ -13,7 +13,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Data
-@Table(name = "customer")
+@Table(name = "customer", indexes = {
+        @Index(name = "idx_fullName", columnList = "fullName"),
+        @Index(name = "idx_dateOfBirth", columnList = "dateOfBirth"),
+        @Index(name = "idx_phone", columnList = "phoneNumber")
+})
 @Entity
 public class Customer {
     @Id
