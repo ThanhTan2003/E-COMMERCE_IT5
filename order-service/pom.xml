@@ -9,6 +9,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+    <build>
+        <finalName>order-service</finalName>
+    </build>
+
     <artifactId>order-service</artifactId>
 
     <properties>

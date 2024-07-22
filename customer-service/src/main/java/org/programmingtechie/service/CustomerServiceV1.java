@@ -27,7 +27,7 @@ public class CustomerServiceV1 {
     final WebClient.Builder webClientBuilder;
 
 
-    public void createProduct(CustomerRequest customerRequest) {
+    public void createCustomer(CustomerRequest customerRequest) {
         validCheckCustomerRequest(customerRequest);
 
         checkUniqueCustomerRequest(customerRequest);

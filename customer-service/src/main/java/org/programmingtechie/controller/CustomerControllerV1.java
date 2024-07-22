@@ -24,7 +24,7 @@ public class CustomerControllerV1
     @ResponseStatus(HttpStatus.CREATED)
     public String createCustomer(@RequestBody CustomerRequest productRequest)
     {
-        customerService_V1.createProduct(productRequest);
+        customerService_V1.createCustomer(productRequest);
         return "Đã thêm thông tin khách hàng mới thành công!";
     }
 
