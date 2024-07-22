@@ -4,10 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.programmingtechie.dto.CategoryRequest;
-import org.programmingtechie.dto.CategoryResponse;
-import org.programmingtechie.dto.ProductRequest;
 import org.programmingtechie.model.Category;
-import org.programmingtechie.model.Product;
 import org.programmingtechie.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 

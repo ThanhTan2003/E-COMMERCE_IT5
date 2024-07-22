@@ -3,7 +3,7 @@ package org.programmingtechie.controller;
 import java.util.List;
 
 import org.programmingtechie.dto.ProductRequest;
-import org.programmingtechie.model.Category;
+import org.programmingtechie.dto.ProductResponse;
 import org.programmingtechie.model.Product;
 import org.programmingtechie.service.ProductServiceV1;
 import org.springframework.http.HttpStatus;
@@ -49,12 +49,6 @@ public class ProductControllerV1 {
         return productService.getProductByStatusBusiness(statusBusiness);
     }
 
-    @PostMapping("/statusInStock")
-    @ResponseStatus(HttpStatus.OK)
-    public Product geProductByStatusInStock(@RequestBody String statusInStock) {
-        return productService.getProductByStatusInStock(statusInStock);
-    }
-
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     public String updateProduct(@PathVariable String id, @RequestBody ProductRequest productRequest) {
@@ -67,5 +61,17 @@ public class ProductControllerV1 {
     public String deleteCustomer(@PathVariable String id) {
         productService.deleteProduct(id);
         return "Xóa thông tin sản phẩm thành công!";
+    }
+
+    @GetMapping("/isExisting")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ProductResponse> isInStock(@RequestParam List<String> list_product_id) {
+        return productService.isExisting(list_product_id);
+    }
+
+    @GetMapping("/isExisting")
+    @ResponseStatus(HttpStatus.OK)
+    public ProductResponse isInStock(@RequestParam String list_product_id) {
+        return productService.isExisting(list_product_id);
     }
 }

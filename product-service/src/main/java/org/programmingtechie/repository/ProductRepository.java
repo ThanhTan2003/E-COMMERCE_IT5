@@ -10,5 +10,4 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 public interface ProductRepository extends JpaRepository<Product, String> {
     Optional<Product> findByName(String name);
     Optional<Product> findByStatusBusiness(String statusBusiness);
-    Optional<Product> findByStatusInStock(String statusInStock);
 }

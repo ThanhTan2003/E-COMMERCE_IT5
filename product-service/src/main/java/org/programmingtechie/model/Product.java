@@ -1,6 +1,5 @@
 package org.programmingtechie.model;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -23,13 +22,10 @@ public class Product {
     @Column(length = 500)
     private String description;
 
-    private BigDecimal price;
+    private Double price;
 
     @Column(nullable = false, length = 100)
     private String statusBusiness;
-
-    @Column(nullable = false, length = 100)
-    private String statusInStock;
 
     @Column(length = 36)
     private String categoryId;
@@ -41,9 +37,6 @@ public class Product {
         }
         if(this.statusBusiness==null){
             this.statusBusiness="Đang kinh doanh";
-        }
-        if(this.statusInStock==null){
-            this.statusInStock="Còn hàng";
         }
     }
 }
