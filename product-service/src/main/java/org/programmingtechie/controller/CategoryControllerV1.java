@@ -16,6 +16,13 @@ public class CategoryControllerV1 {
 
     final CategoryServiceV1 categoryService;
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createCategory(@RequestBody CategoryRequest categoryRequest)
+    {
+        categoryService.createCategory(categoryRequest);
+    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Category> getAllcCategories() {
@@ -36,14 +43,14 @@ public class CategoryControllerV1 {
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public String updateCustomer(@PathVariable String id, @RequestBody CategoryRequest categoryRequest) {
+    public String updateCategory(@PathVariable String id, @RequestBody CategoryRequest categoryRequest) {
         categoryService.updateCategory(id, categoryRequest);
         return "Cập nhật thông tin loại sản phẩm thành công!";
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public String deleteCustomer(@PathVariable String id) {
+    public String deleteCategory(@PathVariable String id) {
         categoryService.deleteCategory(id);
         return "Xóa thông tin loại sản phẩm thành công!";
     }
