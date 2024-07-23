@@ -40,7 +40,7 @@ public class InventoryServiceV1 {
             return checkProductExisting(productIds);
         } catch (Exception e) {
             return productIds.stream()
-                    .map(productId -> new ProductExistingResponse(productId, "...",null, null, false, null, null))
+                    .map(productId -> new ProductExistingResponse(productId, "...",null, null, false, null, null, null))
                     .toList();
         }
     }
@@ -65,10 +65,8 @@ public class InventoryServiceV1 {
         try
         {
             ProductExistingResponse[] productResponses = webClientBuilder.build().get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/api/v1/product/is-existing")
-                            .queryParam("list_product_id", String.join(",", productIds)) // Sử dụng String.join để nối các ID với dấu phẩy
-                            .build())
+                    .uri("http://product-service/api/v1/product/is-existing",
+                            uriBuilder -> uriBuilder.queryParam("list_product_id",productIds).build())
                     .retrieve()
                     .bodyToMono(ProductExistingResponse[].class)
                     .block();

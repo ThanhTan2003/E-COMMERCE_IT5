@@ -32,6 +32,7 @@ public class ProductServiceV1 {
         validCheckProductRequest(productRequest);
         Product product = Product.builder()
                 .name(productRequest.getName())
+                .categoryId(productRequest.getCategoryId())
                 .description(productRequest.getDescription())
                 .price(productRequest.getPrice())
                 .build();
