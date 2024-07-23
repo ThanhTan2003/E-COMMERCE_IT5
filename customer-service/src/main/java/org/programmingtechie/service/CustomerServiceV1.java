@@ -114,8 +114,8 @@ public class CustomerServiceV1 {
 
     public void updateCustomer(String id, CustomerRequest customerRequest)
     {
-        Customer customer = customerRepository.findById(id).get();
-        if(customer == null)
+        Optional<Customer> customer = customerRepository.findById(id);
+        if(customer.isEmpty())
         {
             throw new IllegalArgumentException("Khách hàng không tồn tại. Vui lòng kiểm tra lại!");
         }
@@ -123,24 +123,25 @@ public class CustomerServiceV1 {
         validCheckCustomerRequest(customerRequest);
         checkUniqueCustomerRequest(customerRequest, id);
 
-        customer.setFullName(customerRequest.getFullName());
-        customer.setAddress(customerRequest.getAddress());
-        customer.setPhoneNumber(customerRequest.getPhoneNumber());
-        customer.setEmail(customerRequest.getEmail());
-        customer.setDateOfBirth(customerRequest.getDateOfBirth());
-        customer.setGender(customerRequest.getGender());
+        Customer customer1 = customer.get();
+        customer1.setFullName(customerRequest.getFullName());
+        customer1.setAddress(customerRequest.getAddress());
+        customer1.setPhoneNumber(customerRequest.getPhoneNumber());
+        customer1.setEmail(customerRequest.getEmail());
+        customer1.setDateOfBirth(customerRequest.getDateOfBirth());
+        customer1.setGender(customerRequest.getGender());
 
-        customerRepository.save(customer);
+        customerRepository.save(customer1);
     }
 
     public void deleteCustomer(String id)
     {
-        Customer customer = customerRepository.findById(id).get();
-        if(customer == null)
+        Optional<Customer> customer = customerRepository.findById(id);
+        if(customer.isEmpty())
         {
             throw new IllegalArgumentException("Khách hàng không tồn tại. Vui lòng kiểm tra lại!");
         }
-        customerRepository.delete(customer);
+        customerRepository.delete(customer.get());
     }
 
     public Customer getCustomerByPhoneNumber(String phoneNumber)

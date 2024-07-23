@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ExportHistoryRequest {
-    private String product_id;
+    private String productId;
 
     private Integer quantity;
 

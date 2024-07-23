@@ -24,8 +24,8 @@ public class ImportHistoryServiceV1 {
     {
         ImportHistoryResponse response = new ImportHistoryResponse();
         response.setId(exportHistory.getId());
-        response.setProduct_id(exportHistory.getProduct_id());
-        response.setProduct_name(findProductName(exportHistory.getProduct_id(), productExistingResponses));
+        response.setProductId(exportHistory.getProductId());
+        response.setProductName(findProductName(exportHistory.getProductId(), productExistingResponses));
         response.setQuantity(exportHistory.getQuantity());
         response.setDate(exportHistory.getDate());
         return response;
@@ -60,7 +60,7 @@ public class ImportHistoryServiceV1 {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin xuất kho!"));
 
         List<String> productIds = new ArrayList<>();
-        productIds.add(importHistory.getProduct_id());
+        productIds.add(importHistory.getProductId());
         List<ProductExistingResponse> productExistingResponses = inventoryServiceV1.checkProductExistingWithFallback(productIds);
         return createImportHistoryResponse(importHistory, productExistingResponses);
     }

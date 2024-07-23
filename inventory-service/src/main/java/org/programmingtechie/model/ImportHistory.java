@@ -16,8 +16,8 @@ import java.util.UUID;
 @Builder
 @Data
 @Table(name = "import_history", indexes = {
-        @Index(name = "idx_product_id", columnList = "product_id"),
-        @Index(name = "idx_date", columnList = "date")
+        @Index(name = "idx_import_history_product_id", columnList = "productId"),
+        @Index(name = "idx_import_history_date", columnList = "date")
 })
 @Entity
 public class ImportHistory {
@@ -26,7 +26,7 @@ public class ImportHistory {
     private String id;
 
     @Column(nullable = false, length = 36)
-    private String product_id;
+    private String productId;
 
     @Column(nullable = false)
     private Integer quantity;

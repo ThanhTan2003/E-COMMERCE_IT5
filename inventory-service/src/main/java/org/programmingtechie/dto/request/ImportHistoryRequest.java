@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ImportHistoryRequest
 {
-    private String product_id;
+    private String productId;
 
     private Integer quantity;
 

@@ -32,7 +32,7 @@ public class InventoryControllerV1
         return inventoryServiceV1.getInventoryById(id);
     }
 
-    @PostMapping
+    @PostMapping("/id")
     @ResponseStatus(HttpStatus.OK)
     public InventoryResponse getInventoryById_1(@RequestBody String id)
     {
@@ -67,7 +67,7 @@ public class InventoryControllerV1
         return inventoryServiceV1.isInStock(product_id);
     }
 
-    @GetMapping("/is_in_stock")
+    @GetMapping("/is_in_stock/single")
     @ResponseStatus(HttpStatus.OK)
     public InventoryResponse isInStock(@RequestParam String product_id) {
         return inventoryServiceV1.isInStock(product_id);
@@ -80,5 +80,9 @@ public class InventoryControllerV1
         return inventoryServiceV1.exportProduct(exportProductRequest);
     }
 
-
+    @GetMapping("/load")
+    public String a()
+    {
+        return "load";
+    }
 }

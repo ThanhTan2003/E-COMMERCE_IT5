@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface ExportHistoryRepository extends JpaRepository<ExportHistory, String> {
     List<ExportHistory> findByProductId(String product_id);
 
-    @Query("SELECT DISTINCT e.product_id FROM ExportHistory e")
+    @Query("SELECT DISTINCT e.productId FROM ExportHistory e")
     List<String> findDistinctProductIds();
 }

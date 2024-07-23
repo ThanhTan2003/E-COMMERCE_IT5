@@ -20,7 +20,7 @@ public class Inventory {
     private String id;
 
     @Column(unique = true, nullable = false, length = 36)
-    private String product_id;
+    private String productId;
 
     @Column(nullable = false)
     private Integer quantity;

@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface ImportHistoryRepository extends JpaRepository<ImportHistory, String> {
     List<ImportHistory> findByProductId(String product_id);
 
-    @Query("SELECT DISTINCT e.product_id FROM ImportHistory e")
+    @Query("SELECT DISTINCT e.productId FROM ImportHistory e")
     List<String> findDistinctProductIds();
 }
