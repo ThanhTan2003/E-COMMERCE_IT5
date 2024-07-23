@@ -15,15 +15,15 @@ public class OrderResponse
 {
     private String id;
 
-    private String customer_id;
+    private String customerId;
 
     private LocalDateTime date;
 
-    private String status_handle;
+    private String statusHandle;
 
-    private String status_checkout;
+    private String statusCheckout;
 
-    private String payment_Method;
+    private String paymentMethod;
 
     private double totalAmount;
 

@@ -48,7 +48,7 @@ public class InventoryServiceV1 {
     // Kiểm tra hợp lệ thông tin khi nhập kho
     void validCheckInventoryRequest(ImportHistoryRequest importHistoryRequest)
     {
-        if(importHistoryRequest.getProduct_id() == null)
+        if(importHistoryRequest.getProductId() == null)
             throw new IllegalArgumentException("Vui lòng nhập thông tin sản phẩm nhập kho!");
 
         if(importHistoryRequest.getQuantity() == null)
@@ -101,7 +101,7 @@ public class InventoryServiceV1 {
     public void importStock(List<ImportHistoryRequest> importHistoryRequests)
     {
         List<String> productIds = importHistoryRequests.stream()
-                .map(ImportHistoryRequest::getProduct_id)
+                .map(ImportHistoryRequest::getProductId)
                 .toList();
 
         // Kiểm tra sự tồn tại của các sản phẩm
@@ -110,18 +110,18 @@ public class InventoryServiceV1 {
         for (ImportHistoryRequest importHistoryRequest : importHistoryRequests) {
             validCheckInventoryRequest(importHistoryRequest);
 
-            Optional<Inventory> inventoryOptional = inventoryRepository.findByProductId(importHistoryRequest.getProduct_id());
+            Optional<Inventory> inventoryOptional = inventoryRepository.findByProductId(importHistoryRequest.getProductId());
 
             if (inventoryOptional.isEmpty()) {
                 ImportHistory importHistory = ImportHistory.builder()
-                        .product_id(importHistoryRequest.getProduct_id())
+                        .productId(importHistoryRequest.getProductId())
                         .quantity(importHistoryRequest.getQuantity())
                         .note(importHistoryRequest.getNote())
                         .build();
                 importHistoryRepository.save(importHistory);
 
                 Inventory inventory = Inventory.builder()
-                        .product_id(importHistoryRequest.getProduct_id())
+                        .productId(importHistoryRequest.getProductId())
                         .quantity(importHistoryRequest.getQuantity())
                         .build();
                 inventoryRepository.save(inventory);
@@ -160,7 +160,7 @@ public class InventoryServiceV1 {
         for (ExportProductRequest exportProductRequest1 : exportProductRequest)
         {
             ExportHistory exportHistory = ExportHistory.builder()
-                    .product_id(exportProductRequest1.getProduct_id())
+                    .productId(exportProductRequest1.getProductId())
                     .quantity(exportProductRequest1.getQuantity())
                     .build();
             exportHistoryRepository.save(exportHistory);
@@ -176,7 +176,7 @@ public class InventoryServiceV1 {
 
         if (inventory.isEmpty()) {
             return InventoryResponse.builder()
-                    .product_id(product_id)
+                    .productId(product_id)
                     .isInStock(false)
                     .quantity(0)
                     .build();
@@ -185,7 +185,7 @@ public class InventoryServiceV1 {
         Inventory inv = inventory.get();
         Boolean inStock = inv.getQuantity() > 0;
         return InventoryResponse.builder()
-                .product_id(inv.getProduct_id())
+                .productId(inv.getProductId())
                 .isInStock(inStock)
                 .quantity(inv.getQuantity())
                 .build();
@@ -196,13 +196,13 @@ public class InventoryServiceV1 {
     public List<InventoryResponse> isInStock(List<String> product_id)
     {
 
-        List<Inventory> inventories = inventoryRepository.findByProductId(product_id);
+        List<Inventory> inventories = inventoryRepository.findByProductIdIn(product_id);
 
         return inventories.stream()
                 .map(inventory -> {
                     Boolean inStock = inventory.getQuantity() > 0;
                     return InventoryResponse.builder()
-                            .product_id(inventory.getProduct_id())
+                            .productId(inventory.getProductId())
                             .isInStock(inStock)
                             .quantity(inventory.getQuantity())
                             .build();
@@ -215,14 +215,14 @@ public class InventoryServiceV1 {
     {
         return inventoryRepository.findAll().stream().map(inventory -> {
             List<String> productIds = new ArrayList<>();
-            productIds.add(inventory.getProduct_id());
+            productIds.add(inventory.getProductId());
             List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
 
             String productName = productExistingResponse.get(0).getName().isEmpty() ? "Chưa xác định" : productExistingResponse.get(0).getName();
             return InventoryResponse.builder()
                     .id(inventory.getId())
-                    .product_id(inventory.getProduct_id())
-                    .product_name(productName)
+                    .productId(inventory.getProductId())
+                    .productName(productName)
                     .quantity(inventory.getQuantity())
                     .build();
         }).toList();
@@ -238,14 +238,14 @@ public class InventoryServiceV1 {
             throw new IllegalArgumentException("Không tìm thấy thông tin tồn kho!");
         }
         List<String> productIds = new ArrayList<>();
-        productIds.add(inventory.get().getProduct_id());
+        productIds.add(inventory.get().getProductId());
         List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
 
         String productName = productExistingResponse.get(0).getName().isEmpty() ? "Chưa xác định" : productExistingResponse.get(0).getName();
         return InventoryResponse.builder()
                 .id(inventory.get().getId())
-                .product_id(inventory.get().getProduct_id())
-                .product_name(productName)
+                .productId(inventory.get().getProductId())
+                .productName(productName)
                 .quantity(inventory.get().getQuantity())
                 .build();
     }
@@ -261,15 +261,15 @@ public class InventoryServiceV1 {
 
         Inventory inventory = inventoryOptional.get();
         List<String> productIds = new ArrayList<>();
-        productIds.add(inventory.getProduct_id());
+        productIds.add(inventory.getProductId());
         List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
 
         String productName = productExistingResponse.get(0).getName().isEmpty() ? "Chưa xác định" : productExistingResponse.get(0).getName();
 
         return InventoryResponse.builder()
                 .id(inventory.getId())
-                .product_id(inventory.getProduct_id())
-                .product_name(productName)
+                .productId(inventory.getProductId())
+                .productName(productName)
                 .quantity(inventory.getQuantity())
                 .build();
     }
@@ -280,17 +280,17 @@ public class InventoryServiceV1 {
         int index = 0;
 
         List<String> productIds = exportProductRequest.stream().map(
-                ExportProductRequest::getProduct_id
+                ExportProductRequest::getProductId
         ).toList();
 
         List<InventoryResponse> inventoryResponses = isInStock(productIds);
         for(InventoryResponse inventoryResponse : inventoryResponses)
         {
             if(!inventoryResponse.getIsInStock())
-                throw new IllegalArgumentException("sản phẩm " + inventoryResponse.getProduct_id() + " - " + exportProductRequest.get(index).getProduct_name() + " không có sẵn trong kho!");
+                throw new IllegalArgumentException("sản phẩm " + inventoryResponse.getProductId() + " - " + exportProductRequest.get(index).getProductName() + " không có sẵn trong kho!");
 
             if(inventoryResponse.getQuantity() < exportProductRequest.get(index).getQuantity())
-                throw new IllegalArgumentException("sản phẩm " + inventoryResponse.getProduct_id() + " - " + exportProductRequest.get(index).getProduct_name() + " không đủ số lượng trong kho!");
+                throw new IllegalArgumentException("sản phẩm " + inventoryResponse.getProductId() + " - " + exportProductRequest.get(index).getProductName() + " không đủ số lượng trong kho!");
             index++;
         }
 
@@ -299,7 +299,7 @@ public class InventoryServiceV1 {
         for(ExportProductRequest export : exportProductRequest)
         {
             Integer quantity = inventoryResponses.get(0).getQuantity() - export.getQuantity();
-            updateInventory(export.getProduct_id(), quantity);
+            updateInventory(export.getProductId(), quantity);
         }
 
         createExportHistory(exportProductRequest);

@@ -15,8 +15,8 @@ public class ProductExistingResponse
 {
     private String id;
     private String name;
-    private String category_id;
-    private String category_name;
+    private String categoryId;
+    private String categoryName;
     private Boolean isExisting;
     private Double price;
     private String description;
