@@ -19,6 +19,7 @@ public class CategoryServiceV1 {
     final CategoryRepository categoryRepository;
 
     public void createProduct(CategoryRequest categoryRequest) {
+        validCheckCategoryRequest(categoryRequest);
         Category category = Category.builder()
                 .name(categoryRequest.getName())
                 .build();
@@ -28,32 +29,33 @@ public class CategoryServiceV1 {
         log.info("Category {} is saved", category.getId());
     }
 
+    void validCheckCategoryRequest(CategoryRequest categoryRequest) {
+        if (categoryRequest.getName() == null || categoryRequest.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng nhập tên loại sản phẩm!");
+        }
+    }
+
     public List<Category> getAllCategory() {
         return categoryRepository.findAll();
     }
 
-    public Category getCategoryByName(String name)
-    {
+    public Category getCategoryByName(String name) {
         Optional<Category> category = categoryRepository.findByName(name);
-        if(category.isEmpty())
-        {
+        if (category.isEmpty()) {
             throw new IllegalArgumentException("Không tìm thấy thông tin loại sản phẩm! " + name);
         }
         return category.get();
     }
 
-    public Category getCategoryByStatusBusiness(String statusBusiness)
-    {
+    public Category getCategoryByStatusBusiness(String statusBusiness) {
         Optional<Category> optionalCategory = categoryRepository.findByStatusBusiness(statusBusiness);
-        if(optionalCategory.isEmpty())
-        {
+        if (optionalCategory.isEmpty()) {
             throw new IllegalArgumentException("Không tìm thấy dữ liệu!");
         }
         return optionalCategory.get();
     }
 
-    public void updateCategory(String id, CategoryRequest categoryRequest)
-    {
+    public void updateCategory(String id, CategoryRequest categoryRequest) {
         Optional<Category> optionalCategory = categoryRepository.findById(id);
         if (optionalCategory.isPresent()) {
             Category category = optionalCategory.get();
@@ -69,8 +71,7 @@ public class CategoryServiceV1 {
         }
     }
 
-    public void deleteCategory(String id)
-    {
+    public void deleteCategory(String id) {
         Optional<Category> optionalCategory = categoryRepository.findById(id);
 
         if (optionalCategory.isPresent()) {

@@ -22,6 +22,7 @@ public class Product {
     @Column(length = 500)
     private String description;
 
+    @Column
     private Double price;
 
     @Column(nullable = false, length = 100)

@@ -29,6 +29,7 @@ public class ProductServiceV1 {
     final WebClient.Builder webClientBuilder;
 
     public void createProduct(ProductRequest productRequest) {
+        validCheckProductRequest(productRequest);
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
@@ -40,11 +41,20 @@ public class ProductServiceV1 {
         log.info("Product {} is saved", product.getId());
     }
 
+    void validCheckProductRequest(ProductRequest productRequest) {
+        if (productRequest.getName() == null || productRequest.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng nhập tên sản phẩm!");
+        }
+        if (productRequest.getPrice() <= 0) {
+            throw new IllegalArgumentException("Giá tiền sản phẩm phải lớn hơn 0!");
+        }
+    }
+
     public List<Product> getAllProduct() {
         return productRepository.findAll();
     }
 
-    List<InventoryResponse> checkProductExisting(List<String> productIds) {
+    List<InventoryResponse> checkProductInStock(List<String> productIds) {
         try {
             InventoryResponse[] inventoryResponses = webClientBuilder.build().get()
                     .uri(uriBuilder -> uriBuilder
@@ -103,6 +113,14 @@ public class ProductServiceV1 {
             throw new IllegalArgumentException("Không tìm thấy thông tin sản phẩm!");
         }
         return optionalProduct.get();
+    }
+
+    public List<Product> getProductByCategoryId(String categoryId) {
+        List<Product> products = productRepository.findByCategoryId(categoryId);
+        if (products.isEmpty()) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin sản phẩm!");
+        }
+        return products;
     }
 
     public void updateProduct(String id, ProductRequest productRequest) {
