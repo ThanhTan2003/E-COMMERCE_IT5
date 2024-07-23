@@ -66,7 +66,7 @@ public class InventoryServiceV1 {
         {
             ProductExistingResponse[] productResponses = webClientBuilder.build().get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/api/v1/product/existing")
+                            .path("/api/v1/product/is-existing")
                             .queryParam("list_product_id", String.join(",", productIds)) // Sử dụng String.join để nối các ID với dấu phẩy
                             .build())
                     .retrieve()
