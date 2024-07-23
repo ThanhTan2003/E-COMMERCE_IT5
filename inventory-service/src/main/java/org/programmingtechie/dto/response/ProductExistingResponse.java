@@ -1,5 +1,6 @@
 package org.programmingtechie.dto.response;
 
+import jakarta.persistence.Entity;
 import lombok.*;
 
 @AllArgsConstructor

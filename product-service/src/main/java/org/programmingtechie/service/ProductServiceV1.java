@@ -1,5 +1,6 @@
 package org.programmingtechie.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -171,7 +172,7 @@ public class ProductServiceV1 {
                     .id(prod.getId())
                     .name(prod.getName())
                     .categoryId(prod.getCategoryId())
-                    .categoryName(category != null ? category.getName() : "Chưa xác định")
+                    .categoryName(category.getName())
                     .description(prod.getDescription())
                     .price(prod.getPrice())
                     .statusBusiness(prod.getStatusBusiness())
@@ -180,34 +181,38 @@ public class ProductServiceV1 {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> isExisting(List<String> id) {
-        List<Product> products = productRepository.findAllById(id);
+    public List<ProductResponse> isExisting(List<String> ids) {
+        List<Product> products = productRepository.findAllById(ids);
 
-        if (products.isEmpty()) {
-            return products.stream()
-                    .map(product -> {
-                        return ProductResponse.builder()
-                                .isExisting(false)
-                                .build();
-                    })
-                    .toList();
-        } else {
-            return products.stream()
-                    .map(product -> {
-                        Category category = categoryRepository.findById(product.getCategoryId()).get();
-                        return ProductResponse.builder()
-                                .id(product.getId())
-                                .name(product.getName())
-                                .categoryId(product.getCategoryId())
-                                .categoryName(category != null ? category.getName() : "Chưa xác định")
-                                .description(product.getDescription())
-                                .price(product.getPrice())
-                                .statusBusiness(product.getStatusBusiness())
-                                .isExisting(true)
-                                .build();
-                    })
-                    .toList();
+        List <ProductResponse> productResponses = new ArrayList<>();
+
+        for(Product product : products)
+        {
+            if(product == null)
+            {
+                ProductResponse productResponse = ProductResponse.builder()
+                        .isExisting(false).build();
+                productResponses.add(productResponse);
+            }
+            else {
+                Optional<Category> category = categoryRepository.findById(product.getCategoryId());
+                String categoryName = category.isEmpty() ? "Không tồn tại" : category.get().getName();
+
+                ProductResponse productResponse = ProductResponse.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .categoryId(product.getCategoryId())
+                        .categoryName(categoryName)
+                        .description(product.getDescription())
+                        .price(product.getPrice())
+                        .statusBusiness(product.getStatusBusiness())
+                        .isExisting(true)
+                        .build();
+                productResponses.add(productResponse);
+            }
+
         }
+        return productResponses;
     }
 
     // @Transactional(readOnly = true)
