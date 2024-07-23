@@ -3,7 +3,9 @@ package org.programmingtechie.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.programmingtechie.dto.request.CustomerRequest;
+import org.programmingtechie.dto.response.CustomerExistingResponse;
 import org.programmingtechie.dto.response.CustomerOrderList;
+import org.programmingtechie.dto.response.CustomerResponse;
 import org.programmingtechie.model.Customer;
 import org.programmingtechie.service.CustomerServiceV1;
 import org.springframework.http.HttpStatus;
@@ -48,6 +50,15 @@ public class CustomerControllerV1
     public Customer getCustomerByPhoneNumber(@RequestBody String phoneNumber) {
         return customerService_V1.getCustomerByPhoneNumber(phoneNumber);
     }
+
+    // Nhận yêu cầu kiểm tra khách hàng có tồn tại không theo phoneNumber
+    @GetMapping("/existing/phone")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerExistingResponse isExisting(@RequestParam String customerPhone)
+    {
+        return customerService_V1.isExisting(customerPhone);
+    }
+
 
     @PostMapping("/email")
     @ResponseStatus(HttpStatus.OK)

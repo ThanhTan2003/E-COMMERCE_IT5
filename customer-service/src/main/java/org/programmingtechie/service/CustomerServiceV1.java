@@ -3,6 +3,7 @@ package org.programmingtechie.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.programmingtechie.dto.request.CustomerRequest;
+import org.programmingtechie.dto.response.CustomerExistingResponse;
 import org.programmingtechie.dto.response.CustomerOrderList;
 import org.programmingtechie.dto.response.CustomerResponse;
 import org.programmingtechie.dto.response.OrderResponse;
@@ -209,5 +210,27 @@ public class CustomerServiceV1 {
 
             throw new IllegalArgumentException("Có lỗi xảy ra khi kiểm tra đơn hàng. Vui lòng thử lại sau!");
         }
+    }
+
+    public CustomerExistingResponse isExisting(String customerPhone)
+    {
+        Optional<Customer> customer = customerRepository.findByPhoneNumber(customerPhone);
+        if(customer.isEmpty())
+        {
+            return CustomerExistingResponse.builder()
+                    .isExisting(false)
+                    .build();
+        }
+        else
+            return CustomerExistingResponse.builder()
+                    .isExisting(true)
+                    .id(customer.get().getId())
+                    .fullName(customer.get().getFullName())
+                    .address(customer.get().getAddress())
+                    .phoneNumber(customer.get().getPhoneNumber())
+                    .email(customer.get().getEmail())
+                    .dateOfBirth(customer.get().getDateOfBirth())
+                    .gender(customer.get().getGender())
+                    .build();
     }
 }
