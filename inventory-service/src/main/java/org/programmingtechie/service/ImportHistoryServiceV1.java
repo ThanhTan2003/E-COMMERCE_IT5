@@ -20,30 +20,44 @@ public class ImportHistoryServiceV1 {
     final ImportHistoryRepository importHistoryRepository;
     final InventoryServiceV1 inventoryServiceV1;
 
-    private ImportHistoryResponse createImportHistoryResponse(ImportHistory exportHistory, List<ProductExistingResponse> productExistingResponses)
+    private ImportHistoryResponse createImportHistoryResponse(ImportHistory importHistory, List<ProductExistingResponse> productExistingResponses)
     {
+
         ImportHistoryResponse response = new ImportHistoryResponse();
-        response.setId(exportHistory.getId());
-        response.setProductId(exportHistory.getProductId());
-        response.setProductName(findProductName(exportHistory.getProductId(), productExistingResponses));
-        response.setQuantity(exportHistory.getQuantity());
-        response.setDate(exportHistory.getDate());
+        response.setId(importHistory.getId());
+        response.setProductId(importHistory.getProductId());
+        response.setProductName("...");
+        response.setCategoryName("...");
+        for (ProductExistingResponse productExistingResponse : productExistingResponses) {
+            if (importHistory.getProductId().equals(productExistingResponse.getId())) {
+                response.setProductName(productExistingResponse.getName());
+                response.setCategoryName(productExistingResponse.getCategoryName());
+            }
+        }
+        response.setQuantity(importHistory.getQuantity());
+        response.setDate(importHistory.getDate());
+        response.setNote(importHistory.getNote());
         return response;
     }
 
-    private String findProductName(String productId, List<ProductExistingResponse> productExistingResponses)
-    {
-        for (ProductExistingResponse productExistingResponse : productExistingResponses) {
-            if (productId.equals(productExistingResponse.getId())) {
-                return productExistingResponse.getName();
-            }
-        }
-        return "Chưa xác định";
-    }
+//    private String findProductName(String productId, List<ProductExistingResponse> productExistingResponses)
+//    {
+//        for (ProductExistingResponse productExistingResponse : productExistingResponses) {
+//            if (productId.equals(productExistingResponse.getId())) {
+//                return productExistingResponse.getName();
+//            }
+//        }
+//        return "Chưa xác định";
+//    }
+
 
     public List<ImportHistoryResponse> getAll() {
+
+        // Lay danh sach id san pham co trong danh sach
         List<String> productIds = importHistoryRepository.findDistinctProductIds();
+
         List<ProductExistingResponse> productExistingResponses = inventoryServiceV1.checkProductExistingWithFallback(productIds);
+
         List<ImportHistory> exportHistories = importHistoryRepository.findAll();
 
         List<ImportHistoryResponse> exportHistoryResponses = new ArrayList<>();

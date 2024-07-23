@@ -1,5 +1,6 @@
 package org.programmingtechie.dto.response;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,8 @@ public class ImportHistoryResponse
     private String productId;
 
     private String productName;
+
+    private String categoryName;
 
     private Integer quantity;
 

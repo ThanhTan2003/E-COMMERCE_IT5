@@ -40,7 +40,7 @@ public class InventoryServiceV1 {
             return checkProductExisting(productIds);
         } catch (Exception e) {
             return productIds.stream()
-                    .map(productId -> new ProductExistingResponse(productId, "...",null, null, false, null, null, null))
+                    .map(productId -> new ProductExistingResponse(productId, "...","...", "...", false, null, null, null))
                     .toList();
         }
     }
@@ -110,25 +110,24 @@ public class InventoryServiceV1 {
 
             Optional<Inventory> inventoryOptional = inventoryRepository.findByProductId(importHistoryRequest.getProductId());
 
+            Inventory inventory;
             if (inventoryOptional.isEmpty()) {
-                ImportHistory importHistory = ImportHistory.builder()
-                        .productId(importHistoryRequest.getProductId())
-                        .quantity(importHistoryRequest.getQuantity())
-                        .note(importHistoryRequest.getNote())
-                        .build();
-                importHistoryRepository.save(importHistory);
-
-                Inventory inventory = Inventory.builder()
+                inventory = Inventory.builder()
                         .productId(importHistoryRequest.getProductId())
                         .quantity(importHistoryRequest.getQuantity())
                         .build();
-                inventoryRepository.save(inventory);
             } else {
-                Inventory inventory = inventoryOptional.get();
+                inventory = inventoryOptional.get();
                 Integer quantity = inventory.getQuantity() + importHistoryRequest.getQuantity();
                 inventory.setQuantity(quantity);
-                inventoryRepository.save(inventory);
             }
+            inventoryRepository.save(inventory);
+            ImportHistory importHistory = ImportHistory.builder()
+                    .productId(importHistoryRequest.getProductId())
+                    .quantity(importHistoryRequest.getQuantity())
+                    .note(importHistoryRequest.getNote())
+                    .build();
+            importHistoryRepository.save(importHistory);
         }
     }
 
@@ -209,19 +208,26 @@ public class InventoryServiceV1 {
     }
 
     // lấy danh sách thông tin sản phẩm tồn kho
-    public List<InventoryResponse> getAll()
-    {
+    public List<InventoryResponse> getAll() {
         return inventoryRepository.findAll().stream().map(inventory -> {
             List<String> productIds = new ArrayList<>();
             productIds.add(inventory.getProductId());
             List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
 
-            String productName = productExistingResponse.get(0).getName().isEmpty() ? "Chưa xác định" : productExistingResponse.get(0).getName();
+            String productName = "...";
+            String categoryName = "...";
+            if (!productExistingResponse.isEmpty() && productExistingResponse.get(0) != null) {
+                productName = productExistingResponse.get(0).getName().isEmpty() ? "..." : productExistingResponse.get(0).getName();
+                categoryName = productExistingResponse.get(0).getCategoryName().isEmpty() ? "..." : productExistingResponse.get(0).getCategoryName();
+            }
+
             return InventoryResponse.builder()
                     .id(inventory.getId())
                     .productId(inventory.getProductId())
                     .productName(productName)
+                    .categoryName(categoryName)
                     .quantity(inventory.getQuantity())
+                    .isInStock(inventory.getQuantity() > 0)
                     .build();
         }).toList();
     }
@@ -239,7 +245,7 @@ public class InventoryServiceV1 {
         productIds.add(inventory.get().getProductId());
         List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
 
-        String productName = productExistingResponse.get(0).getName().isEmpty() ? "Chưa xác định" : productExistingResponse.get(0).getName();
+        String productName = productExistingResponse.get(0).getName().isEmpty() ? "Không cć thông tin" : productExistingResponse.get(0).getName();
         return InventoryResponse.builder()
                 .id(inventory.get().getId())
                 .productId(inventory.get().getProductId())
