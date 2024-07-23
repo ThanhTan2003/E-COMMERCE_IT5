@@ -7,8 +7,12 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class OrderListDetailDto {
+
     private String id;
-    private String skuCode;
+    private String orderId;
+    private String productId;
+    private String productName;
     private Double price;
     private Integer quantity;
+    private Double totalAmount;
 }

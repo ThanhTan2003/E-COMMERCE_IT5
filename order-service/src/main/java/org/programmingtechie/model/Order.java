@@ -28,7 +28,7 @@ public class Order {
     @Column(nullable = false, length = 100)
     private String statusCheckout;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String capacityCheckout;
 
     @Column(nullable = false)
@@ -52,7 +52,6 @@ public class Order {
             this.id = UUID.randomUUID().toString();
         }
         if (this.date == null) {
-            // Lấy thời gian hiện tại ở múi giờ UTC+7
             ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
             this.date = zonedDateTime.toLocalDateTime();
         }

@@ -1,5 +1,7 @@
 package org.programmingtechie.model;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,4 +33,12 @@ public class OrderDetail {
 
     @Column(nullable = false)
     private Double totalAmount;
+
+    @PrePersist
+    private void ensureId()
+    {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
+    }
 }

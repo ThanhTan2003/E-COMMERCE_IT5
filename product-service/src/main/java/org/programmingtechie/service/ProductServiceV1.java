@@ -209,4 +209,34 @@ public class ProductServiceV1 {
         }
     }
 
+    // @Transactional(readOnly = true)
+    // public List<ProductResponse> isExisting(List<String> id) {
+    //     List<Product> products = productRepository.findAllById(id);
+    //     List<ProductResponse> productResponses = new ArrayList<>();
+
+    //     int index = 0;
+
+    //     for (ProductResponse productExistingResponse : productResponses) {
+    //         if (products.get(index) == null) {
+    //             productExistingResponse.setIsExisting(false);
+    //         } else {
+    //             productExistingResponse.setId(products.get(index).getId());
+    //             productExistingResponse.setName(products.get(index).getName());
+    //             productExistingResponse.setCategoryId(products.get(index).getCategoryId());
+
+    //             Category category = categoryRepository.findById(products.get(index).getCategoryId()).get();
+
+    //             productExistingResponse.setCategoryName(category != null ? category.getName()
+    //                     : "Chưa xác định");
+
+    //             productExistingResponse.setIsExisting(true);
+    //             productExistingResponse.setStatusBusiness(products.get(index).getStatusBusiness());
+
+    //             index++;
+
+    //         }
+    //     }
+
+    //     return productResponses;
+    // }
 }
