@@ -1,5 +1,6 @@
 package org.programmingtechie.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,34 @@ public class ProductServiceV1 {
         return productRepository.findAll();
     }
 
+    public ProductResponse getById(String id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin sản phẩm!"));
+
+        List<String> categoryName = new ArrayList<>();
+        categoryName.add(product.getId());
+        List<ProductResponse> productExistingResponses = ;
+        return createProductResponse(categoryName, productExistingResponses);
+    }
+
+    private ProductResponse createProductResponse(Category category, List<ProductResponse> productResponses) {
+        ProductResponse response = new ProductResponse();
+        response.setId(response.getId());
+        response.setCategoryId(response.getCategoryId());
+        response.setName("...");
+        response.setCategoryName("...");
+        for (ProductResponse productResponse : productResponses) {
+            if (category.getId().equals(productResponse.getCategoryId())) {
+                response.setName(productResponse.getName());
+                response.setCategoryName(productResponse.getCategoryName());
+            }
+        }
+        response.setDescription(response.getDescription());
+        response.setPrice(response.getPrice());
+        response.setStatusBusiness(response.getStatusBusiness());
+        return response;
+    }
+
     List<InventoryResponse> checkProductInStock(List<String> productIds) {
         try {
             InventoryResponse[] inventoryResponses = webClientBuilder.build().get()
@@ -99,12 +128,12 @@ public class ProductServiceV1 {
         return optionalProduct.get();
     }
 
-    public Product getProductByStatusBusiness(String statusBusiness) {
-        Optional<Product> optionalProduct = productRepository.findByStatusBusiness(statusBusiness);
+    public List<Product> getProductByStatusBusiness(String statusBusiness) {
+        List<Product> optionalProduct = productRepository.findByStatusBusiness(statusBusiness);
         if (optionalProduct.isEmpty()) {
             throw new IllegalArgumentException("Không tìm thấy dữ liệu!");
         }
-        return optionalProduct.get();
+        return optionalProduct;
     }
 
     public Product getProductById(String id) {
@@ -124,6 +153,7 @@ public class ProductServiceV1 {
     }
 
     public void updateProduct(String id, ProductRequest productRequest) {
+        validCheckProductRequest(productRequest);
         Optional<Product> optionalProduct = productRepository.findById(id);
         if (optionalProduct.isPresent()) {
             Product product = optionalProduct.get();
@@ -179,64 +209,66 @@ public class ProductServiceV1 {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> isExisting(List<String> id) {
-        List<Product> products = productRepository.findAllById(id);
+    public List<ProductResponse> isExisting(List<String> ids) {
+        List<Product> products = productRepository.findAllById(ids);
 
-        if (products.isEmpty()) {
-            return products.stream()
-                    .map(product -> {
-                        return ProductResponse.builder()
-                                .isExisting(false)
-                                .build();
-                    })
-                    .toList();
-        } else {
-            return products.stream()
-                    .map(product -> {
-                        Category category = categoryRepository.findById(product.getCategoryId()).get();
-                        return ProductResponse.builder()
-                                .id(product.getId())
-                                .name(product.getName())
-                                .categoryId(product.getCategoryId())
-                                .categoryName(category != null ? category.getName() : "Chưa xác định")
-                                .description(product.getDescription())
-                                .price(product.getPrice())
-                                .statusBusiness(product.getStatusBusiness())
-                                .isExisting(true)
-                                .build();
-                    })
-                    .toList();
+        List<ProductResponse> productResponses = new ArrayList<>();
+
+        for (Product product : products) {
+            if (product == null) {
+                ProductResponse productResponse = ProductResponse.builder()
+                        .isExisting(false).build();
+                productResponses.add(productResponse);
+            } else {
+                Optional<Category> category = categoryRepository.findById(product.getCategoryId());
+                String categoryName = category.isEmpty() ? "Không tồn tại" : category.get().getName();
+
+                ProductResponse productResponse = ProductResponse.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .categoryId(product.getCategoryId())
+                        .categoryName(categoryName)
+                        .description(product.getDescription())
+                        .price(product.getPrice())
+                        .statusBusiness(product.getStatusBusiness())
+                        .isExisting(true)
+                        .build();
+                productResponses.add(productResponse);
+            }
+
         }
+        return productResponses;
     }
 
     // @Transactional(readOnly = true)
     // public List<ProductResponse> isExisting(List<String> id) {
-    //     List<Product> products = productRepository.findAllById(id);
-    //     List<ProductResponse> productResponses = new ArrayList<>();
+    // List<Product> products = productRepository.findAllById(id);
+    // List<ProductResponse> productResponses = new ArrayList<>();
 
-    //     int index = 0;
+    // int index = 0;
 
-    //     for (ProductResponse productExistingResponse : productResponses) {
-    //         if (products.get(index) == null) {
-    //             productExistingResponse.setIsExisting(false);
-    //         } else {
-    //             productExistingResponse.setId(products.get(index).getId());
-    //             productExistingResponse.setName(products.get(index).getName());
-    //             productExistingResponse.setCategoryId(products.get(index).getCategoryId());
+    // for (ProductResponse productExistingResponse : productResponses) {
+    // if (products.get(index) == null) {
+    // productExistingResponse.setIsExisting(false);
+    // } else {
+    // productExistingResponse.setId(products.get(index).getId());
+    // productExistingResponse.setName(products.get(index).getName());
+    // productExistingResponse.setCategoryId(products.get(index).getCategoryId());
 
-    //             Category category = categoryRepository.findById(products.get(index).getCategoryId()).get();
+    // Category category =
+    // categoryRepository.findById(products.get(index).getCategoryId()).get();
 
-    //             productExistingResponse.setCategoryName(category != null ? category.getName()
-    //                     : "Chưa xác định");
+    // productExistingResponse.setCategoryName(category != null ? category.getName()
+    // : "Chưa xác định");
 
-    //             productExistingResponse.setIsExisting(true);
-    //             productExistingResponse.setStatusBusiness(products.get(index).getStatusBusiness());
+    // productExistingResponse.setIsExisting(true);
+    // productExistingResponse.setStatusBusiness(products.get(index).getStatusBusiness());
 
-    //             index++;
+    // index++;
 
-    //         }
-    //     }
+    // }
+    // }
 
-    //     return productResponses;
+    // return productResponses;
     // }
 }

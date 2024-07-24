@@ -18,7 +18,7 @@ public class CategoryServiceV1 {
 
     final CategoryRepository categoryRepository;
 
-    public void createProduct(CategoryRequest categoryRequest) {
+    public void createCategory(CategoryRequest categoryRequest) {
         validCheckCategoryRequest(categoryRequest);
         Category category = Category.builder()
                 .name(categoryRequest.getName())

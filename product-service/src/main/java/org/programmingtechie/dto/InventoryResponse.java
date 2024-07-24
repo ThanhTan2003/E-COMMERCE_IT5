@@ -11,9 +11,11 @@ public class InventoryResponse
 {
     private String id;
 
-    private String product_id;
+    private String productId;
 
-    private String product_name;
+    private String productName;
+
+    private String categoryName;
 
     private Integer quantity;
 
@@ -21,8 +23,9 @@ public class InventoryResponse
 
     @PrePersist
     private void productName() {
-        if (this.product_name == null) {
-            this.product_name = "Chưa xác định";
+        if (this.productName == null) {
+            this.productName = "Chưa xác định";
         }
+        isInStock = (quantity > 0);
     }
 }
