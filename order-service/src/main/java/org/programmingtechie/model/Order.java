@@ -14,6 +14,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Order {
     @Id
     @Column(nullable = false, length = 36)
@@ -22,6 +23,9 @@ public class Order {
     @Column(nullable = false, length = 36)
     private String customerId;
 
+    @Column(nullable = false, length = 36)
+    private String phoneNumber;
+
     @Column(nullable = false, length = 100)
     private String statusHandle;
 
@@ -29,7 +33,7 @@ public class Order {
     private String statusCheckout;
 
     @Column(length = 100)
-    private String capacityCheckout;
+    private String paymentMethod;
 
     @Column(nullable = false)
     private LocalDateTime date;
@@ -61,6 +65,7 @@ public class Order {
         if (this.statusHandle == null) {
             this.statusHandle = "Đã tiếp nhận";
         }
+        this.paymentMethod=null;
     }
 
     @OneToMany(cascade = CascadeType.ALL)

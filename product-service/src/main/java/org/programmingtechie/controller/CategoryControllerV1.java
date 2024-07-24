@@ -11,10 +11,17 @@ import lombok.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/category")
+@RequestMapping("/api/v1/product/category")
 public class CategoryControllerV1 {
 
     final CategoryServiceV1 categoryService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createCategory(@RequestBody CategoryRequest categoryRequest)
+    {
+        categoryService.createCategory(categoryRequest);
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

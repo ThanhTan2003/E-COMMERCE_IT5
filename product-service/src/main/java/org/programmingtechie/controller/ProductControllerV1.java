@@ -1,5 +1,6 @@
 package org.programmingtechie.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.programmingtechie.dto.ProductRequest;
@@ -43,9 +44,15 @@ public class ProductControllerV1 {
         return productService.getProductByName(name);
     }
 
+    @PostMapping("/name")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Product> getProductByCategoryId(@RequestBody String categoryId) {
+        return productService.getProductByCategoryId(categoryId);
+    }
+
     @PostMapping("/statusBusiness")
     @ResponseStatus(HttpStatus.OK)
-    public Product getCategoryByStatusBusiness(@RequestBody String statusBusiness) {
+    public List<Product> getCategoryByStatusBusiness(@RequestBody String statusBusiness) {
         return productService.getProductByStatusBusiness(statusBusiness);
     }
 
@@ -63,15 +70,15 @@ public class ProductControllerV1 {
         return "Xóa thông tin sản phẩm thành công!";
     }
 
-    @GetMapping("/isExisting")
+    @GetMapping("/is-existing")
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductResponse> isInStock(@RequestParam List<String> list_product_id) {
+    public List<ProductResponse> isExisting(@RequestParam List<String> list_product_id) {
         return productService.isExisting(list_product_id);
     }
 
-    @GetMapping("/isExisting")
+    @GetMapping("/is-existing/single")
     @ResponseStatus(HttpStatus.OK)
-    public ProductResponse isInStock(@RequestParam String list_product_id) {
+    public ProductResponse isExisting(@RequestParam String list_product_id) {
         return productService.isExisting(list_product_id);
     }
 }
