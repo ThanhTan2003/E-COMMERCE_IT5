@@ -1,5 +1,6 @@
 package org.programmingtechie.dto.response;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,8 @@ public class InventoryResponse
 
     private String productName;
 
+    private String categoryName;
+
     private Integer quantity;
 
     private Boolean isInStock;
@@ -27,5 +30,6 @@ public class InventoryResponse
         if (this.productName == null) {
             this.productName = "Chưa xác định";
         }
+        isInStock = (quantity > 0);
     }
 }

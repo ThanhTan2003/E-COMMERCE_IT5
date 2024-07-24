@@ -1,5 +1,6 @@
 package org.programmingtechie.dto.response;
 
+import jakarta.persistence.Entity;
 import lombok.*;
 
 @AllArgsConstructor
@@ -13,6 +14,7 @@ public class ProductExistingResponse
     private String categoryId;
     private String categoryName;
     private Boolean isExisting;
+    private String statusBusiness;
     private Double price;
     private String description;
 }

@@ -83,4 +83,5 @@ public class CategoryServiceV1 {
             throw new IllegalArgumentException("Category with ID " + id + " not found");
         }
     }
+
 }

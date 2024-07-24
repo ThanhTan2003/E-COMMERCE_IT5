@@ -25,7 +25,14 @@ public class ExportHistoryServiceV1 {
         ExportHistoryResponse response = new ExportHistoryResponse();
         response.setId(exportHistory.getId());
         response.setProductId(exportHistory.getProductId());
-        response.setProductName(findProductName(exportHistory.getProductId(), productExistingResponses));
+        response.setProductName("...");
+        response.setCategoryName("...");
+        for (ProductExistingResponse productExistingResponse : productExistingResponses) {
+            if (exportHistory.getProductId().equals(productExistingResponse.getId())) {
+                response.setProductName(productExistingResponse.getName());
+                response.setCategoryName(productExistingResponse.getCategoryName());
+            }
+        }
         response.setQuantity(exportHistory.getQuantity());
         response.setDate(exportHistory.getDate());
         return response;

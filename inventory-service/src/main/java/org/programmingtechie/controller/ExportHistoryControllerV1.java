@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/inventory/export_history")
+@RequestMapping("/api/v1/inventory/export-history")
 @RequiredArgsConstructor
 @Slf4j
 public class ExportHistoryControllerV1 {

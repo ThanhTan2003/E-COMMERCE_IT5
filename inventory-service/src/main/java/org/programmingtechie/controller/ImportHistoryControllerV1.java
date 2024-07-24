@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/inventory/import_history")
+@RequestMapping("/api/v1/inventory/import-history")
 @RequiredArgsConstructor
 @Slf4j
 public class ImportHistoryControllerV1 {

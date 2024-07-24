@@ -1,0 +1,162 @@
+version: '3.8'
+services:
+  postgres-product:
+    container_name: postgres-product
+    image: postgres
+    environment:
+      POSTGRES_DB: product-service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tranthanhtan
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres-product:/data/postgres
+    ports:
+      - "5431:5432"
+    restart: always
+
+  order-product:
+    container_name: postgres-order
+    image: postgres
+    environment:
+      POSTGRES_DB: order-service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tranthanhtan
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres-order:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: always
+
+  postgres-inventory:
+    container_name: postgres-inventory
+    image: postgres
+    environment:
+      POSTGRES_DB: inventory-service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tranthanhtan
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres-inventory:/data/postgres
+    ports:
+      - "5433:5432"
+    restart: always
+
+  postgres-customer:
+    container_name: postgres-customer
+    image: postgres
+    environment:
+      POSTGRES_DB: customer-service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tranthanhtan
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres-customer:/data/postgres
+    ports:
+      - "5434:5432"
+    restart: always
+
+  discovery-server:
+#    build:
+#      context: ./discovery-server
+    image: thanhtantg2003/discovery-server:latest
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_INSTANCE_HOSTNAME=discovery-server
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  product-service:
+    container_name: product-service
+#    build:
+#      context: ./product-service
+    image: thanhtantg2003/product-service:latest
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-product:5432/product-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=tranthanhtan
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+    ports:
+      - "8081:8081"
+    depends_on:
+      - discovery-server
+      - postgres-product
+      - api-gateway
+
+  order-service:
+    container_name: order-service
+    #    build:
+    #      context: ./order-service
+    image: thanhtantg2003/order-service:latest
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-order:5432/order-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=tranthanhtan
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+    ports:
+      - "8082:8082"
+    depends_on:
+      - discovery-server
+      - postgres-inventory
+      - api-gateway
+
+  inventory-service:
+    container_name: inventory-service
+#    build:
+#      context: ./inventory-service
+    image: thanhtantg2003/inventory-service:latest
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-inventory:5432/inventory-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=tranthanhtan
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+    ports:
+      - "8083:8083"
+    depends_on:
+      - discovery-server
+      - postgres-inventory
+      - api-gateway
+
+  customer-service:
+    container_name: customer-service
+#    build:
+#      context: ./customer-service
+    image: thanhtantg2003/customer-service:latest
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-customer:5432/customer-service
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=tranthanhtan
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+    ports:
+      - "8084:8084"
+    depends_on:
+      - discovery-server
+      - postgres-customer
+      - api-gateway
+
+  api-gateway:
+#    build:
+#      context: ./api-gateway
+    image: thanhtantg2003/api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
+    depends_on:
+      - discovery-server
