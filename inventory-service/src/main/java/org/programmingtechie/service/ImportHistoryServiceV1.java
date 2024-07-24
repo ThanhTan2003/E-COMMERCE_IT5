@@ -20,9 +20,10 @@ public class ImportHistoryServiceV1 {
     final ImportHistoryRepository importHistoryRepository;
     final InventoryServiceV1 inventoryServiceV1;
 
+    // Tạo ImportHistoryResponse
+    // Xác định tên sản phẩm và thể loại sản phẩm tương ứng
     private ImportHistoryResponse createImportHistoryResponse(ImportHistory importHistory, List<ProductExistingResponse> productExistingResponses)
     {
-
         ImportHistoryResponse response = new ImportHistoryResponse();
         response.setId(importHistory.getId());
         response.setProductId(importHistory.getProductId());
@@ -40,17 +41,7 @@ public class ImportHistoryServiceV1 {
         return response;
     }
 
-//    private String findProductName(String productId, List<ProductExistingResponse> productExistingResponses)
-//    {
-//        for (ProductExistingResponse productExistingResponse : productExistingResponses) {
-//            if (productId.equals(productExistingResponse.getId())) {
-//                return productExistingResponse.getName();
-//            }
-//        }
-//        return "Chưa xác định";
-//    }
-
-
+    // Lấy danh sách thông tin sản phẩm nhập kho
     public List<ImportHistoryResponse> getAll() {
 
         // Lay danh sach id san pham co trong danh sach
@@ -69,6 +60,7 @@ public class ImportHistoryServiceV1 {
         return exportHistoryResponses;
     }
 
+    //
     public ImportHistoryResponse getById(String id) {
         ImportHistory importHistory = importHistoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin xuất kho!"));
@@ -79,6 +71,7 @@ public class ImportHistoryServiceV1 {
         return createImportHistoryResponse(importHistory, productExistingResponses);
     }
 
+    //
     public List<ImportHistoryResponse> getAllByProductId(String product_id) {
         List<ImportHistory> exportHistories = importHistoryRepository.findByProductId(product_id);
         if(exportHistories.isEmpty())

@@ -245,12 +245,19 @@ public class InventoryServiceV1 {
         productIds.add(inventory.get().getProductId());
         List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
 
-        String productName = productExistingResponse.get(0).getName().isEmpty() ? "Không cć thông tin" : productExistingResponse.get(0).getName();
+        String productName = "...";
+        String categoryName = "...";
+        if (!productExistingResponse.isEmpty() && productExistingResponse.get(0) != null) {
+            productName = productExistingResponse.get(0).getName().isEmpty() ? "..." : productExistingResponse.get(0).getName();
+            categoryName = productExistingResponse.get(0).getCategoryName().isEmpty() ? "..." : productExistingResponse.get(0).getCategoryName();
+        }
         return InventoryResponse.builder()
                 .id(inventory.get().getId())
                 .productId(inventory.get().getProductId())
                 .productName(productName)
+                .categoryName(categoryName)
                 .quantity(inventory.get().getQuantity())
+                .isInStock(inventory.get().getQuantity() > 0)
                 .build();
     }
 
