@@ -56,32 +56,23 @@ public class ProductServiceV1 {
         return productRepository.findAll();
     }
 
-    public ProductResponse getById(String id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin sản phẩm!"));
+    public List<ProductResponse> getAllProducts(List<String> id) {
+        List<Product> products = productRepository.findAllById(id);
 
-        List<String> categoryName = new ArrayList<>();
-        categoryName.add(product.getId());
-        List<ProductResponse> productExistingResponses = ;
-        return createProductResponse(categoryName, productExistingResponses);
+        return products.stream().map(this::mapToProductResponse).toList();
     }
 
-    private ProductResponse createProductResponse(Category category, List<ProductResponse> productResponses) {
-        ProductResponse response = new ProductResponse();
-        response.setId(response.getId());
-        response.setCategoryId(response.getCategoryId());
-        response.setName("...");
-        response.setCategoryName("...");
-        for (ProductResponse productResponse : productResponses) {
-            if (category.getId().equals(productResponse.getCategoryId())) {
-                response.setName(productResponse.getName());
-                response.setCategoryName(productResponse.getCategoryName());
-            }
-        }
-        response.setDescription(response.getDescription());
-        response.setPrice(response.getPrice());
-        response.setStatusBusiness(response.getStatusBusiness());
-        return response;
+    private ProductResponse mapToProductResponse(Product product) {
+        Category category=categoryRepository.findById(product.getCategoryId()).get();
+        return ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .categoryId(product.getCategoryId())
+                .categoryName(category.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .statusBusiness(product.getStatusBusiness())
+                .build();
     }
 
     List<InventoryResponse> checkProductInStock(List<String> productIds) {
@@ -213,17 +204,14 @@ public class ProductServiceV1 {
     public List<ProductResponse> isExisting(List<String> ids) {
         List<Product> products = productRepository.findAllById(ids);
 
-        List <ProductResponse> productResponses = new ArrayList<>();
+        List<ProductResponse> productResponses = new ArrayList<>();
 
-        for(Product product : products)
-        {
-            if(product == null)
-            {
+        for (Product product : products) {
+            if (product == null) {
                 ProductResponse productResponse = ProductResponse.builder()
                         .isExisting(false).build();
                 productResponses.add(productResponse);
-            }
-            else{
+            } else {
                 Optional<Category> category = categoryRepository.findById(product.getCategoryId());
                 String categoryName = category.isEmpty() ? "Không tồn tại" : category.get().getName();
 
