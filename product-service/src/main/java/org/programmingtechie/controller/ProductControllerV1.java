@@ -43,8 +43,7 @@ public class ProductControllerV1 {
         return productService.getProductByName(name);
     }
 
-
-    @PostMapping("/name")
+    @PostMapping("/category-id")
     @ResponseStatus(HttpStatus.OK)
     public List<Product> getProductByCategoryId(@RequestBody String categoryId) {
         return productService.getProductByCategoryId(categoryId);

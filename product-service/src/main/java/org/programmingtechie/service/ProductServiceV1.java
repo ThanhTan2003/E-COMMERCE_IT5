@@ -62,8 +62,9 @@ public class ProductServiceV1 {
 
         List<String> categoryName = new ArrayList<>();
         categoryName.add(product.getId());
-        List<ProductResponse> productExistingResponses = ;
-        return createProductResponse(categoryName, productExistingResponses);
+        //List<ProductResponse> productExistingResponses = ;
+        //return createProductResponse(categoryName, productExistingResponses);
+        return null;
     }
 
     private ProductResponse createProductResponse(Category category, List<ProductResponse> productResponses) {
