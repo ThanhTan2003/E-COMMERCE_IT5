@@ -11,6 +11,9 @@
 
     <build>
         <finalName>product-service</finalName>
+        <plugins>
+
+        </plugins>
     </build>
 
     <artifactId>product-service</artifactId>
@@ -65,6 +68,10 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
 
