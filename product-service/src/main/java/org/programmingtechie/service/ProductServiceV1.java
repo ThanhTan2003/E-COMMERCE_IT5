@@ -213,16 +213,6 @@ public class ProductServiceV1 {
     public List<ProductResponse> isExisting(List<String> ids) {
         List<Product> products = productRepository.findAllById(ids);
 
-<<<<<<< HEAD
-        List<ProductResponse> productResponses = new ArrayList<>();
-
-        for (Product product : products) {
-            if (product == null) {
-                ProductResponse productResponse = ProductResponse.builder()
-                        .isExisting(false).build();
-                productResponses.add(productResponse);
-            } else {
-=======
         List <ProductResponse> productResponses = new ArrayList<>();
 
         for(Product product : products)
@@ -233,8 +223,7 @@ public class ProductServiceV1 {
                         .isExisting(false).build();
                 productResponses.add(productResponse);
             }
-            else {
->>>>>>> 6d16af63fcfbd17bd0fee3fa7e3369f9c20f6cfc
+            else{
                 Optional<Category> category = categoryRepository.findById(product.getCategoryId());
                 String categoryName = category.isEmpty() ? "Không tồn tại" : category.get().getName();
 

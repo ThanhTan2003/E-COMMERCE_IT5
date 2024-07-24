@@ -1,6 +1,5 @@
 package org.programmingtechie.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.programmingtechie.dto.ProductRequest;
@@ -44,17 +43,14 @@ public class ProductControllerV1 {
         return productService.getProductByName(name);
     }
 
-<<<<<<< HEAD
+
     @PostMapping("/name")
     @ResponseStatus(HttpStatus.OK)
     public List<Product> getProductByCategoryId(@RequestBody String categoryId) {
         return productService.getProductByCategoryId(categoryId);
     }
 
-    @PostMapping("/statusBusiness")
-=======
     @PostMapping("/status-business")
->>>>>>> 6d16af63fcfbd17bd0fee3fa7e3369f9c20f6cfc
     @ResponseStatus(HttpStatus.OK)
     public List<Product> getCategoryByStatusBusiness(@RequestBody String statusBusiness) {
         return productService.getProductByStatusBusiness(statusBusiness);
