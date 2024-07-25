@@ -68,7 +68,7 @@ public class OrderServiceV1 {
                     .bodyToMono(Boolean.class)
                     .block();
 
-            // Sản phẩm tồn tại
+            // Xuất kho thành công
             if (export) {
                 Order order = new Order();
                 List<OrderDetail> orderDetail = orderRequest.getOrderListDetailDto().stream()

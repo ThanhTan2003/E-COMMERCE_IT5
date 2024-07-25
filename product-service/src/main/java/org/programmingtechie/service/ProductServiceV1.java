@@ -58,21 +58,31 @@ public class ProductServiceV1 {
 
     public List<ProductResponse> getAllProducts(List<String> id) {
         List<Product> products = productRepository.findAllById(id);
+        List<ProductResponse> productResponses = new ArrayList<>();
 
-        return products.stream().map(this::mapToProductResponse).toList();
-    }
+        for (Product product : products) {
+            if (product == null) {
+                ProductResponse productResponse = ProductResponse.builder()
+                        .isExisting(false).build();
+                productResponses.add(productResponse);
+            } else {
+                Optional<Category> category = categoryRepository.findById(product.getCategoryId());
+                String categoryName = category.isEmpty() ? "Không tồn tại" : category.get().getName();
 
-    private ProductResponse mapToProductResponse(Product product) {
-        Category category=categoryRepository.findById(product.getCategoryId()).get();
-        return ProductResponse.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .categoryId(product.getCategoryId())
-                .categoryName(category.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .statusBusiness(product.getStatusBusiness())
-                .build();
+                ProductResponse productResponse = ProductResponse.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .categoryId(product.getCategoryId())
+                        .categoryName(categoryName)
+                        .description(product.getDescription())
+                        .price(product.getPrice())
+                        .statusBusiness(product.getStatusBusiness())
+                        .isExisting(true)
+                        .build();
+                productResponses.add(productResponse);
+            }
+        }
+        return productResponses;
     }
 
     List<InventoryResponse> checkProductInStock(List<String> productIds) {
