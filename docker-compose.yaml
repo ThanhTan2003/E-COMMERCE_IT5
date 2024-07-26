@@ -221,8 +221,8 @@ services:
     # https://hub.docker.com/r/jaegertracing/example-hotrod-snapshot/tags
     #image: jaegertracing/example-hotrod-snapshot:0ab8f2fcb12ff0d10830c1ee3bb52b745522db6c
     ports:
-      - "9090:9090"
-      - "9093:9093"
+      - "9090:8080"
+      - "9093:8083"
     command: ["all"]
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
