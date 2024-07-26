@@ -79,7 +79,7 @@ public class OrderServiceV1 {
                                 .productName(item.getProductName())
                                 .price(item.getPrice())
                                 .quantity(item.getQuantity())
-                                .totalAmount(item.getTotalAmount())
+                                .totalAmount(item.getPrice()*item.getQuantity())
                                 .build())
                         .toList();
 
