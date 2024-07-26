@@ -56,8 +56,8 @@ public class ProductServiceV1 {
         return productRepository.findAll();
     }
 
-    public List<ProductResponse> getAllProducts(List<String> id) {
-        List<Product> products = productRepository.findAllById(id);
+    public List<ProductResponse> getAllProducts() {
+        List<Product> products = productRepository.findAll();
         List<ProductResponse> productResponses = new ArrayList<>();
 
         for (Product product : products) {
