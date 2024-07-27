@@ -212,6 +212,7 @@ public class CustomerServiceV1 {
         }
     }
 
+    @Transactional(readOnly = true)
     public CustomerExistingResponse isExisting(String customerPhone)
     {
         Optional<Customer> customer = customerRepository.findByPhoneNumber(customerPhone);

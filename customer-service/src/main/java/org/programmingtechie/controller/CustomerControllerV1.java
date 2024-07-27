@@ -54,8 +54,7 @@ public class CustomerControllerV1
     // Nhận yêu cầu kiểm tra khách hàng có tồn tại không theo phoneNumber
     @GetMapping("/existing/phone")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerExistingResponse isExisting(@RequestParam String customerPhone)
-    {
+    public CustomerExistingResponse isExisting(@RequestParam String customerPhone) {
         return customerService_V1.isExisting(customerPhone);
     }
 
