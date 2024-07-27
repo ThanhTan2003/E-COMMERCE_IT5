@@ -85,10 +85,16 @@ public class CustomerControllerV1
         return "Xóa thông tin khách hàng thành công!";
     }
 
-    @GetMapping("{id}/orders")
+    @GetMapping("/orders/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerOrderList getOrderList(@PathVariable String id)
+    public CustomerOrderList getOrderListById(@PathVariable String id)
     {
-        return customerService_V1.getOrderList(id);
+        return customerService_V1.getOrderListById(id);
+    }
+    @GetMapping("/orders/phone/{phoneNumber}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerOrderList getOrderListByPhoneNumber(@PathVariable String phoneNumber)
+    {
+        return customerService_V1.getOrderListByPhoneNumber(phoneNumber);
     }
 }

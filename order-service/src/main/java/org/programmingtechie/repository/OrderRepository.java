@@ -7,9 +7,14 @@ import org.programmingtechie.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OrderRepository extends JpaRepository<Order, String> {
-    Optional<Order> findByCustomerId(String customerId);
+    List<Order> findByCustomerId(String customerId);
+
+    List<Order> findByPhoneNumber(String phoneNumber);
+
     List<Order> findByStatusCheckout(String statusCheckout);
+
     List<Order> findByStatusHandle(String statusHandle);
+
     List<Order> findByPaymentMethod(String paymentMethod);
 }
 

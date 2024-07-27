@@ -326,75 +326,6 @@ public class OrderServiceV1 {
         return optionalOrder;
     }
 
-    @Transactional(readOnly = true)
-    public OrderResponse isCustomerExisting(String customerId) {
-//        Optional<Order> optionalOrder = orderRepository.findByCustomerId(customerId);
-//
-//        if (optionalOrder.isEmpty()) {
-//            return OrderResponse.builder()
-//                    .customerId(null)
-//                    .build();
-//        } else {
-//            Order order = optionalOrder.get();
-//            List<OrderDetailResponse> orderListDetailDtos = order.getOrderList().stream()
-//                    .map(this::convertToOrderListDetailDto)
-//                    .collect(Collectors.toList());
-//            return OrderResponse.builder()
-//                    .id(order.getId())
-//                    .customerId(order.getCustomerId())
-//                    .phoneNumber(order.getPhoneNumber())
-//                    .statusHanle(order.getStatusHandle())
-//                    .statusCheckout(order.getStatusCheckout())
-//                    .paymentMethod(order.getPaymentMethod())
-//                    .date(order.getDate())
-//                    .totalAmount(BigDecimal.valueOf(order.getTotalAmount()))
-//                    .discount(BigDecimal.valueOf(order.getDiscount()))
-//                    .total(BigDecimal.valueOf(order.getTotal()))
-//                    .note(order.getNote())
-//                    .orderDetailResponses(orderListDetailDtos)
-//                    .build();
-//        }
-        return null;
-    }
-
-    @Transactional(readOnly = true)
-    public List<OrderResponse> isCustomerExisting(List<String> customerId) {
-//        List<Order> orders = orderRepository.findAllById(customerId);
-//
-//        List<OrderResponse> orderResponses = new ArrayList<>();
-//
-//        for (Order order : orders) {
-//            if (order == null) {
-//                OrderResponse orderResponse = OrderResponse.builder()
-//                        .customerId(null).build();
-//                orderResponses.add(orderResponse);
-//            } else {
-//                List<OrderListDetailDto> orderListDetailDtos = order.getOrderList().stream()
-//                        .map(this::convertToOrderListDetailDto)
-//                        .collect(Collectors.toList());
-//                OrderResponse orderResponse = OrderResponse.builder()
-//                        .id(order.getId())
-//                        .customerId(order.getCustomerId())
-//                        .phoneNumber(order.getPhoneNumber())
-//                        .statusHanle(order.getStatusHandle())
-//                        .statusCheckout(order.getStatusCheckout())
-//                        .paymentMethod(order.getPaymentMethod())
-//                        .date(order.getDate())
-//                        .totalAmount(BigDecimal.valueOf(order.getTotalAmount()))
-//                        .discount(BigDecimal.valueOf(order.getDiscount()))
-//                        .total(BigDecimal.valueOf(order.getTotal()))
-//                        .note(order.getNote())
-//                        .orderDetailResponses(orderListDetailDtos)
-//                        .build();
-//                orderResponses.add(orderResponse);
-//            }
-//
-//        }
-//        return orderResponses;
-
-        return null;
-    }
-
     private OrderListDetailDto convertToOrderListDetailDto(OrderDetail orderDetail) {
         OrderListDetailDto orderListDetailDto = new OrderListDetailDto();
         orderListDetailDto.setId(orderDetail.getId());
@@ -405,5 +336,55 @@ public class OrderServiceV1 {
         orderListDetailDto.setQuantity(orderDetail.getQuantity());
         orderListDetailDto.setTotalAmount(orderDetail.getTotalAmount());
         return orderListDetailDto;
+    }
+
+    public List<OrderResponse> getOrderByCustomerId(String customerId)
+    {
+        List<Order> orders = orderRepository.findByCustomerId(customerId);
+
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        for(int i = 0; i < orders.size(); i++)
+        {
+            OrderResponse orderResponse = OrderResponse.builder()
+                    .id(orders.get(i).getId())
+                    .customerId(orders.get(i).getCustomerId())
+                    .phoneNumber(orders.get(i).getPhoneNumber())
+                    .statusHanle(orders.get(i).getStatusHandle())
+                    .statusCheckout(orders.get(i).getStatusCheckout())
+                    .paymentMethod(orders.get(i).getPaymentMethod())
+                    .date(orders.get(i).getDate())
+                    .note(orders.get(i).getNote())
+                    .totalAmount(orders.get(i).getTotalAmount())
+                    .discount(orders.get(i).getDiscount())
+                    .total(orders.get(i).getTotal())
+                    .build();
+            orderResponses.add(orderResponse);
+        }
+        return  orderResponses;
+    }
+
+    public List<OrderResponse> getOrderByCustomerPhoneNumber(String customerPhoneNumber)
+    {
+        List<Order> orders = orderRepository.findByPhoneNumber(customerPhoneNumber);
+
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        for(int i = 0; i < orders.size(); i++)
+        {
+            OrderResponse orderResponse = OrderResponse.builder()
+                    .id(orders.get(i).getId())
+                    .customerId(orders.get(i).getCustomerId())
+                    .phoneNumber(orders.get(i).getPhoneNumber())
+                    .statusHanle(orders.get(i).getStatusHandle())
+                    .statusCheckout(orders.get(i).getStatusCheckout())
+                    .paymentMethod(orders.get(i).getPaymentMethod())
+                    .date(orders.get(i).getDate())
+                    .note(orders.get(i).getNote())
+                    .totalAmount(orders.get(i).getTotalAmount())
+                    .discount(orders.get(i).getDiscount())
+                    .total(orders.get(i).getTotal())
+                    .build();
+            orderResponses.add(orderResponse);
+        }
+        return  orderResponses;
     }
 }

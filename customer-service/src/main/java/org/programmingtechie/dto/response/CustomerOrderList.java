@@ -15,5 +15,7 @@ public class CustomerOrderList
 {
     private CustomerResponse customerResponse;
 
+    private Integer totalOrder;
+
     private List<OrderResponse> orderResponses;
 }
