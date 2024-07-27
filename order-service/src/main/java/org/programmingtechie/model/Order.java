@@ -23,6 +23,9 @@ public class Order {
     @Column(nullable = false, length = 36)
     private String customerId;
 
+    @Column(nullable = false, length = 100)
+    private String customerName;
+
     @Column(nullable = false, length = 36)
     private String phoneNumber;
 

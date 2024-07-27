@@ -199,6 +199,7 @@ public class OrderServiceV1 {
         //
         Order order = Order.builder()
                 .customerId(orderRequest.getCustomerId())
+                .customerName(customerExistingResponse.getFullName())
                 .phoneNumber(orderRequest.getPhoneNumber())
                 .statusCheckout(orderRequest.getStatusCheckout())
                 .statusHandle(orderRequest.getStatusHandle())
@@ -348,6 +349,7 @@ public class OrderServiceV1 {
             OrderResponse orderResponse = OrderResponse.builder()
                     .id(orders.get(i).getId())
                     .customerId(orders.get(i).getCustomerId())
+                    .customerName(orders.get(i).getCustomerName())
                     .phoneNumber(orders.get(i).getPhoneNumber())
                     .statusHanle(orders.get(i).getStatusHandle())
                     .statusCheckout(orders.get(i).getStatusCheckout())
@@ -373,6 +375,7 @@ public class OrderServiceV1 {
             OrderResponse orderResponse = OrderResponse.builder()
                     .id(orders.get(i).getId())
                     .customerId(orders.get(i).getCustomerId())
+                    .customerName(orders.get(i).getCustomerName())
                     .phoneNumber(orders.get(i).getPhoneNumber())
                     .statusHanle(orders.get(i).getStatusHandle())
                     .statusCheckout(orders.get(i).getStatusCheckout())
