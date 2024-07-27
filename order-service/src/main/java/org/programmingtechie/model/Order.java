@@ -65,7 +65,9 @@ public class Order {
         if (this.statusHandle == null) {
             this.statusHandle = "Đã tiếp nhận";
         }
-        this.paymentMethod=null;
+        if (this.paymentMethod == null) {
+            this.paymentMethod = "Không có thông tin";
+        }
     }
 
     @OneToMany(cascade = CascadeType.ALL)

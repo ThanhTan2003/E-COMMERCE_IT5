@@ -1,4 +1,4 @@
-package org.programmingtechie.dto;
+package org.programmingtechie.dto.request;
 
 import java.util.List;
 
@@ -8,14 +8,26 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderRequest {
-    private String customerId;
+
     private String phoneNumber;
+
     private String statusHandle;
+
     private String statusCheckout;
-    private Double totalAmount;
+
     private Double discount;
-    private Double total;
+
     private String note;
+
     private String paymentMethod;
+
+    //-------------------------------------------------
+
+    private String customerId;
+
+    private Double totalAmount;
+
+    private Double total;
+
     private List<OrderListDetailDto> orderListDetailDto;
 }

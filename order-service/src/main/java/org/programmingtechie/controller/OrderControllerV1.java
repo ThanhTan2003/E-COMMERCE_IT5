@@ -2,8 +2,8 @@ package org.programmingtechie.controller;
 
 import java.util.List;
 
-import org.programmingtechie.dto.OrderRequest;
-import org.programmingtechie.dto.OrderResponse;
+import org.programmingtechie.dto.request.OrderRequest;
+import org.programmingtechie.dto.response.OrderResponse;
 import org.programmingtechie.model.Order;
 import org.programmingtechie.service.OrderServiceV1;
 import org.springframework.http.HttpStatus;
@@ -20,9 +20,8 @@ public class OrderControllerV1 {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String createOrder(@RequestBody OrderRequest orderRequest) {
-        orderService.createOrder(orderRequest);
-        return "Order Placed Successfully";
+    public OrderResponse createOrder(@RequestBody OrderRequest orderRequest) {
+        return orderService.createOrder(orderRequest);
     }
 
     @PutMapping("/update/{id}")

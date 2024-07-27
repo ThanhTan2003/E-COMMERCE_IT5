@@ -1,4 +1,4 @@
-package org.programmingtechie.dto;
+package org.programmingtechie.dto.request;
 
 import lombok.*;
 
@@ -8,11 +8,19 @@ import lombok.*;
 @Builder
 public class OrderListDetailDto {
 
-    private String id;
-    private String orderId;
     private String productId;
-    private String productName;
-    private Double price;
+
     private Integer quantity;
+
+    //---------------------------------------------------
+
+    private String id;
+
+    private String orderId;
+
+    private String productName;
+
+    private Double price;
+
     private Double totalAmount;
 }
