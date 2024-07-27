@@ -25,19 +25,19 @@ public class InventoryControllerV1
         return inventoryServiceV1.getAll();
     }
 
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public InventoryResponse getInventoryById(@PathVariable String id)
-    {
-        return inventoryServiceV1.getInventoryById(id);
-    }
-
-    @PostMapping("/id")
-    @ResponseStatus(HttpStatus.OK)
-    public InventoryResponse getInventoryById_1(@RequestBody String id)
-    {
-        return inventoryServiceV1.getInventoryById(id);
-    }
+//    @GetMapping("/{id}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public InventoryResponse getInventoryById(@PathVariable String id)
+//    {
+//        return inventoryServiceV1.getInventoryById(id);
+//    }
+//
+//    @PostMapping("/id")
+//    @ResponseStatus(HttpStatus.OK)
+//    public InventoryResponse getInventoryById_1(@RequestBody String id)
+//    {
+//        return inventoryServiceV1.getInventoryById(id);
+//    }
 
     @GetMapping("/product/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -61,19 +61,19 @@ public class InventoryControllerV1
         return "Đã nhập kho thành công!";
     }
 
-    @GetMapping("/is_in_stock")
+    @GetMapping("/is-in-stock")
     @ResponseStatus(HttpStatus.OK)
     public List<InventoryResponse> isInStock(@RequestParam List<String> product_id) {
         return inventoryServiceV1.isInStock(product_id);
     }
 
-    @GetMapping("/is_in_stock/single")
+    @GetMapping("/is-in-stock/single")
     @ResponseStatus(HttpStatus.OK)
     public InventoryResponse isInStock(@RequestParam String product_id) {
         return inventoryServiceV1.isInStock(product_id);
     }
 
-    @PostMapping("/export_product")
+    @PostMapping("/export-product")
     @ResponseStatus(HttpStatus.OK)
     public Boolean exportProduct(@RequestBody List<ExportProductRequest> exportProductRequest)
     {

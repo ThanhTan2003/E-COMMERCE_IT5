@@ -168,7 +168,6 @@ public class InventoryServiceV1 {
     @Transactional(readOnly = true)
     public InventoryResponse isInStock(String product_id)
     {
-
         Optional<Inventory> inventory = inventoryRepository.findByProductId(product_id);
 
         if (inventory.isEmpty()) {
@@ -190,22 +189,53 @@ public class InventoryServiceV1 {
 
     // Kiểm tra tồn kho nhiều sản phẩm
     @Transactional(readOnly = true)
-    public List<InventoryResponse> isInStock(List<String> product_id)
-    {
+    public List<InventoryResponse> isInStock(List<String> productIds) {
+        List<InventoryResponse> inventoryResponses = new ArrayList<>();
+        List<Inventory> inventories = inventoryRepository.findByProductIdIn(productIds);
 
-        List<Inventory> inventories = inventoryRepository.findByProductIdIn(product_id);
+        for (String productId : productIds) {
+            Inventory inventory = inventories.stream()
+                    .filter(inv -> inv.getProductId().equals(productId))
+                    .findFirst()
+                    .orElse(null);
 
-        return inventories.stream()
-                .map(inventory -> {
-                    Boolean inStock = inventory.getQuantity() > 0;
-                    return InventoryResponse.builder()
-                            .productId(inventory.getProductId())
-                            .isInStock(inStock)
-                            .quantity(inventory.getQuantity())
-                            .build();
-                })
-                .toList();
+            if (inventory == null) {
+                inventoryResponses.add(InventoryResponse.builder()
+                        .productId(productId)
+                        .isInStock(false)
+                        .build());
+            } else {
+                inventoryResponses.add(InventoryResponse.builder()
+                        .productId(inventory.getProductId())
+                        .isInStock(true)
+                        .quantity(inventory.getQuantity())
+                        .build());
+            }
+        }
+
+        return inventoryResponses;
     }
+//    public List<InventoryResponse> isInStock(List<String> productIds)
+//    {
+//        List<InventoryResponse> inventoryResponses = new ArrayList<>();
+//        List<Inventory> inventories = inventoryRepository.findByProductIdIn(productIds);
+//
+//        for(int i = 0; i < inventories.size(); i++)
+//        {
+//            if(inventories.get(i) == null)
+//                inventoryResponses.add(InventoryResponse.builder()
+//                        .productId(productIds.get(i))
+//                        .isInStock(false)
+//                        .build());
+//            else
+//                inventoryResponses.add(InventoryResponse.builder()
+//                        .productId(inventories.get(i).getProductId())
+//                        .isInStock(true)
+//                        .quantity(inventories.get(i).getQuantity())
+//                        .build());
+//        }
+//        return inventoryResponses;
+//    }
 
     // lấy danh sách thông tin sản phẩm tồn kho
     public List<InventoryResponse> getAll() {
@@ -234,32 +264,32 @@ public class InventoryServiceV1 {
 
 
     // Lấy thông tin tồn kho theo ID
-    public InventoryResponse getInventoryById(String id)
-    {
-        Optional<Inventory> inventory = inventoryRepository.findById(id);
-        if(inventory.isEmpty())
-        {
-            throw new IllegalArgumentException("Không tìm thấy thông tin tồn kho!");
-        }
-        List<String> productIds = new ArrayList<>();
-        productIds.add(inventory.get().getProductId());
-        List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
-
-        String productName = "...";
-        String categoryName = "...";
-        if (!productExistingResponse.isEmpty() && productExistingResponse.get(0) != null) {
-            productName = productExistingResponse.get(0).getName().isEmpty() ? "..." : productExistingResponse.get(0).getName();
-            categoryName = productExistingResponse.get(0).getCategoryName().isEmpty() ? "..." : productExistingResponse.get(0).getCategoryName();
-        }
-        return InventoryResponse.builder()
-                .id(inventory.get().getId())
-                .productId(inventory.get().getProductId())
-                .productName(productName)
-                .categoryName(categoryName)
-                .quantity(inventory.get().getQuantity())
-                .isInStock(inventory.get().getQuantity() > 0)
-                .build();
-    }
+//    public InventoryResponse getInventoryById(String id)
+//    {
+//        Optional<Inventory> inventory = inventoryRepository.findById(id);
+//        if(inventory.isEmpty())
+//        {
+//            throw new IllegalArgumentException("Không tìm thấy thông tin tồn kho!");
+//        }
+//        List<String> productIds = new ArrayList<>();
+//        productIds.add(inventory.get().getProductId());
+//        List<ProductExistingResponse> productExistingResponse = checkProductExistingWithFallback(productIds);
+//
+//        String productName = "...";
+//        String categoryName = "...";
+//        if (!productExistingResponse.isEmpty() && productExistingResponse.get(0) != null) {
+//            productName = productExistingResponse.get(0).getName().isEmpty() ? "..." : productExistingResponse.get(0).getName();
+//            categoryName = productExistingResponse.get(0).getCategoryName().isEmpty() ? "..." : productExistingResponse.get(0).getCategoryName();
+//        }
+//        return InventoryResponse.builder()
+//                .id(inventory.get().getId())
+//                .productId(inventory.get().getProductId())
+//                .productName(productName)
+//                .categoryName(categoryName)
+//                .quantity(inventory.get().getQuantity())
+//                .isInStock(inventory.get().getQuantity() > 0)
+//                .build();
+//    }
 
     // Lấy thông tin tồn kho theo product_id
     public InventoryResponse getInventoryByProductId(String id)
@@ -286,30 +316,38 @@ public class InventoryServiceV1 {
     }
 
     // Xuất kho sản phẩm khi order-service gọi đến
-    public Boolean exportProduct(List<ExportProductRequest> exportProductRequest)
-    {
-        int index = 0;
+    public Boolean exportProduct(List<ExportProductRequest> exportProductRequest) {
 
-        List<String> productIds = exportProductRequest.stream().map(
-                ExportProductRequest::getProductId
-        ).toList();
-
-        List<InventoryResponse> inventoryResponses = isInStock(productIds);
-        for(InventoryResponse inventoryResponse : inventoryResponses)
-        {
-            if(!inventoryResponse.getIsInStock())
-                throw new IllegalArgumentException("sản phẩm " + inventoryResponse.getProductId() + " - " + exportProductRequest.get(index).getProductName() + " không có sẵn trong kho!");
-
-            if(inventoryResponse.getQuantity() < exportProductRequest.get(index).getQuantity())
-                throw new IllegalArgumentException("sản phẩm " + inventoryResponse.getProductId() + " - " + exportProductRequest.get(index).getProductName() + " không đủ số lượng trong kho!");
-            index++;
+        if (exportProductRequest == null || exportProductRequest.isEmpty()) {
+            throw new IllegalArgumentException("Danh sách xuất hàng không được rỗng.");
         }
 
-        index = 0;
+        List<String> productIds = exportProductRequest.stream()
+                .map(ExportProductRequest::getProductId)
+                .toList();
 
-        for(ExportProductRequest export : exportProductRequest)
-        {
-            Integer quantity = inventoryResponses.get(0).getQuantity() - export.getQuantity();
+        List<InventoryResponse> inventoryResponses = isInStock(productIds);
+
+//        if (inventoryResponses.size() != exportProductRequest.size()) {
+//            throw new IllegalStateException("Số lượng phản hồi tồn kho không khớp với số lượng yêu cầu xuất.");
+//        }
+
+        for (int index = 0; index < exportProductRequest.size(); index++) {
+            InventoryResponse inventoryResponse = inventoryResponses.get(index);
+            ExportProductRequest export = exportProductRequest.get(index);
+
+            if (inventoryResponse == null || !inventoryResponse.getIsInStock()) {
+                throw new IllegalArgumentException("Sản phẩm " + export.getProductId() + " - " + export.getProductName() + " không có sẵn trong kho!");
+            }
+
+            if (inventoryResponse.getQuantity() < export.getQuantity()) {
+                throw new IllegalArgumentException("Sản phẩm " + export.getProductId() + " - " + export.getProductName() + " không đủ số lượng trong kho!");
+            }
+        }
+
+        for (int index = 0; index < exportProductRequest.size(); index++) {
+            ExportProductRequest export = exportProductRequest.get(index);
+            Integer quantity = inventoryResponses.get(index).getQuantity() - export.getQuantity();
             updateInventory(export.getProductId(), quantity);
         }
 

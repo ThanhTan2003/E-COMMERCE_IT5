@@ -1,4 +1,4 @@
-package org.programmingtechie.dto;
+package org.programmingtechie.dto.response;
 
 import lombok.*;
 
@@ -8,6 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 public class InventoryResponse {
     private String productId;
+
     private Integer quantity;
+
     private Boolean isInStock;
 }
