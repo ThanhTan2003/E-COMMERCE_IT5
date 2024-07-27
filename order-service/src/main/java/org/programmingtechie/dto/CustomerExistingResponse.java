@@ -1,5 +1,7 @@
 package org.programmingtechie.dto;
 
+import java.time.LocalDate;
+
 import lombok.*;
 
 @Data
@@ -7,6 +9,19 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class CustomerExistingResponse {
-    private String phoneNumber;
     private Boolean isExisting;
+
+    private String id;
+
+    private String fullName;
+
+    private String address;
+
+    private String phoneNumber;
+
+    private String email;
+
+    private LocalDate dateOfBirth;
+
+    private String gender;
 }

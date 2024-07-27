@@ -10,6 +10,7 @@ import org.programmingtechie.dto.CustomerExistingResponse;
 import org.programmingtechie.dto.OrderListDetailDto;
 import org.programmingtechie.dto.OrderRequest;
 import org.programmingtechie.dto.OrderResponse;
+import org.programmingtechie.dto.ProductResponse;
 import org.programmingtechie.model.Order;
 import org.programmingtechie.model.OrderDetail;
 import org.programmingtechie.repository.OrderRepository;
@@ -29,11 +30,12 @@ public class OrderServiceV1 {
 
     private final WebClient.Builder webClientBuilder;
     private final OrderRepository orderRepository;
+    private List<OrderDetail> orderDetail;
 
     // Kiểm tra khách hàng
     public List<CustomerExistingResponse> isCustomerExist(String customerPhone) {
         CustomerExistingResponse[] customerExistingResponses = webClientBuilder.build().get()
-                .uri("http://customer-service/api/existing/phone",
+                .uri("http://customer-service/api/v1/customer/existing/phone",
                         uriBuilder -> uriBuilder.queryParam("customerPhone", customerPhone).build())
                 .retrieve()
                 .bodyToMono(CustomerExistingResponse[].class)
@@ -49,75 +51,121 @@ public class OrderServiceV1 {
         return Arrays.stream(customerExistingResponses).toList();
     }
 
-    // Đặt hàng
-    public OrderResponse createOrder(OrderRequest orderRequest) {
-
-        // Kiểm tra sản phẩm tồn tại trong kho
-        List<OrderListDetailDto> orderDetailRequests = orderRequest.getOrderListDetailDto().stream().map(item -> {
-            return OrderListDetailDto.builder()
-                    .id(item.getId())
-                    .quantity(item.getQuantity())
-                    .build();
-        }).toList();
-
+    public List<ProductResponse> checkProductExisting(List<String> productIds) {
         try {
-            Boolean export = webClientBuilder.build().get()
-                    .uri("http://inventory-service/api/v1/inventory/export-product",
-                            uriBuilder -> uriBuilder.queryParam("exportProductRequest", orderDetailRequests).build())
+            ProductResponse[] productResponses = webClientBuilder.build().get()
+                    .uri("http://product-service/api/v1/product/is-existing",
+                            uriBuilder -> uriBuilder.queryParam("list_product_id", productIds).build())
                     .retrieve()
-                    .bodyToMono(Boolean.class)
+                    .bodyToMono(ProductResponse[].class)
                     .block();
 
-            // Xuất kho thành công
-            if (export) {
-                Order order = new Order();
-                List<OrderDetail> orderDetail = orderRequest.getOrderListDetailDto().stream()
-                        .map(item -> OrderDetail.builder()
-                                .id(item.getId())
-                                .orderId(order.getId())
-                                .productId(item.getProductId())
-                                .productName(item.getProductName())
-                                .price(item.getPrice())
-                                .quantity(item.getQuantity())
-                                .totalAmount(item.getPrice()*item.getQuantity())
-                                .build())
-                        .toList();
+            if (productResponses == null) {
+                throw new IllegalStateException("Không thể kiểm tra sản phẩm. Vui lòng thử lại sau.");
+            }
 
-                Double totalAmountList = orderDetail.stream()
-                        .mapToDouble(OrderDetail::getTotalAmount)
-                        .sum();
+            for (ProductResponse productResponse : productResponses) {
+                if (!productResponse.getIsExisting()) {
+                    throw new IllegalStateException(
+                            String.format("Sản phẩm có mã id %s không tồn tại. Vui lòng kiểm tra lại!",
+                                    productResponse.getId()));
+                }
+            }
+            return Arrays.stream(productResponses).toList();
+        } catch (WebClientException e) {
+            log.info("ERROR - Xảy ra lỗi khi giao tiếp với product-service: {}", e.getMessage());
 
-                order.setTotalAmount(totalAmountList);
+            throw new IllegalArgumentException(
+                    "Dịch vụ quản lý sản phẩm (product-service) không khả dụng. Vui lòng kiểm tra hoặc thử lại sau!");
+        } catch (Exception e) {
+            log.info("ERROR - Xảy ra lỗi khi giao tiếp với product-service: {}", e.getMessage());
+
+            throw new IllegalArgumentException("Có lỗi xảy ra khi kiểm tra sản phẩm. Vui lòng thử lại sau!");
+        }
+    }
+
+    // Đặt hàng
+    public OrderResponse createOrder(OrderRequest orderRequest) {
+        Order order = new Order();
+
+        List<CustomerExistingResponse> customerExistingResponses = isCustomerExist(orderRequest.getPhoneNumber());
+        List<ProductResponse> productResponses = new ArrayList<>();
+       
+        if (customerExistingResponses.isEmpty()) {
+            throw new IllegalStateException("Không tìm thấy số điện thoại khách hàng phù hợp!");
+        } else {
+            for (CustomerExistingResponse customerExistingResponse : customerExistingResponses) {
                 order.setPhoneNumber(orderRequest.getPhoneNumber());
-                order.setCustomerId(orderRequest.getCustomerId());
+                order.setCustomerId(customerExistingResponse.getId());
 
                 order.setDiscount(orderRequest.getDiscount());
                 order.setNote(orderRequest.getNote());
+
+                for (ProductResponse productResponse : productResponses) {
+                    orderDetail = orderRequest.getOrderListDetailDto().stream()
+                            .map(item -> OrderDetail.builder()
+                                    .orderId(order.getId())
+                                    .productId(item.getProductId())
+                                    .price(productResponse.getPrice())
+                                    .quantity(item.getQuantity())
+                                    .totalAmount(productResponse.getPrice() * item.getQuantity())
+                                    .build())
+                            .toList();
+                }
+                Double totalAmountList = orderDetail.stream()
+                        .mapToDouble(OrderDetail::getTotalAmount)
+                        .sum();
+                order.setTotalAmount(totalAmountList);
 
                 Double total = orderRequest.getTotalAmount() - orderRequest.getDiscount();
                 order.setTotal(total);
 
                 order.setOrderList(orderDetail);
-
-                List<CustomerExistingResponse> customerPhone = isCustomerExist(orderRequest.getPhoneNumber());
-                if (!customerPhone.isEmpty()) {
-                    orderRepository.save(order);
+                List<String> productId = order.getOrderList()
+                        .stream()
+                        .map(OrderDetail::getProductId)
+                        .toList();
+                productResponses = checkProductExisting(productId);
+                if (productResponses.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "Dịch vụ danh mục sản phẩm không khả dụng. Vui lòng kiểm tra hoặc thử lại sau!");
                 } else {
-                    throw new IllegalStateException("Không tìm thấy số điện thoại khách hàng phù hợp!");
+                    orderDetail = orderRequest.getOrderListDetailDto().stream()
+                            .map(item -> {
+                                return OrderDetail.builder()
+                                        .productId(item.getProductId())
+                                        .quantity(item.getQuantity())
+                                        .build();
+                            }).toList();
+                    try {
+                        // Kiểm tra sản phẩm tồn tại trong kho
+                        Boolean export = webClientBuilder.build().get()
+                                .uri("http://inventory-service/api/v1/inventory/export-product",
+                                        uriBuilder -> uriBuilder.queryParam("exportProductRequest", orderDetail)
+                                                .build())
+                                .retrieve()
+                                .bodyToMono(Boolean.class)
+                                .block();
+
+                        // Xuất kho không thành công
+                        if (!export) {
+                            throw new IllegalArgumentException(
+                                    "Dịch vụ quản lý kho (inventory-service) không khả dụng. Vui lòng kiểm tra hoặc thử lại sau!");
+                        } else {
+                            orderRepository.save(order);
+                        }
+                    } catch (WebClientException e) {
+                        log.info("ERROR - Xảy ra lỗi khi giao tiếp với inventory-service: {}", e.getMessage());
+
+                        throw new IllegalArgumentException(
+                                "Dịch vụ quản lý kho (inventory-service) không khả dụng. Vui lòng kiểm tra hoặc thử lại sau!");
+                    } catch (Exception e) {
+                        log.info("ERROR - Xảy ra lỗi khi giao tiếp với inventory-service: {}", e.getMessage());
+
+                        throw new IllegalArgumentException("Có lỗi xảy ra khi kiểm tra kho. Vui lòng thử lại sau!");
+                    }
                 }
-            } else {
-                throw new IllegalArgumentException(
-                        "Dịch vụ quản lý kho (inventory-service) không khả dụng. Vui lòng kiểm tra hoặc thử lại sau!");
             }
-        } catch (WebClientException e) {
-            log.info("ERROR - Xảy ra lỗi khi giao tiếp với inventory-service: {}", e.getMessage());
-
-            throw new IllegalArgumentException(
-                    "Dịch vụ quản lý kho (inventory-service) không khả dụng. Vui lòng kiểm tra hoặc thử lại sau!");
-        } catch (Exception e) {
-            log.info("ERROR - Xảy ra lỗi khi giao tiếp với inventory-service: {}", e.getMessage());
-
-            throw new IllegalArgumentException("Có lỗi xảy ra khi kiểm tra kho. Vui lòng thử lại sau!");
         }
 
         return null;
