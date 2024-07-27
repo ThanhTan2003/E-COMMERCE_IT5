@@ -211,17 +211,22 @@ public class ProductServiceV1 {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> isExisting(List<String> ids) {
-        List<Product> products = productRepository.findAllById(ids);
-
+    public List<ProductResponse> isExisting(List<String> productIds) {
         List<ProductResponse> productResponses = new ArrayList<>();
-
-        for (Product product : products) {
-            if (product == null) {
+        for(String id : productIds)
+        {
+            Optional<Product> productOptional = productRepository.findById(id);
+            if(productOptional.isEmpty())
+            {
                 ProductResponse productResponse = ProductResponse.builder()
-                        .isExisting(false).build();
+                        .id(id)
+                        .isExisting(false)
+                        .build();
                 productResponses.add(productResponse);
-            } else {
+            }
+            else
+            {
+                Product product = productOptional.get();
                 Optional<Category> category = categoryRepository.findById(product.getCategoryId());
                 String categoryName = category.isEmpty() ? "Không tồn tại" : category.get().getName();
 
@@ -237,7 +242,6 @@ public class ProductServiceV1 {
                         .build();
                 productResponses.add(productResponse);
             }
-
         }
         return productResponses;
     }
