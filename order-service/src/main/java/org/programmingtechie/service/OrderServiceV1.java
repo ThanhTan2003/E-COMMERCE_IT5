@@ -195,6 +195,7 @@ public class OrderServiceV1 {
         //Tạo hóa đơn
         Order order = Order.builder()
                 .customerId(orderRequest.getCustomerId())
+                .customerName(customerExistingResponse.getFullName())
                 .phoneNumber(orderRequest.getPhoneNumber())
                 .statusCheckout(orderRequest.getStatusCheckout())
                 .statusHandle(orderRequest.getStatusHandle())
