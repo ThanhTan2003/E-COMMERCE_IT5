@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 
-import org.programmingtechie.displayformat.CustomDoubleSerializer;
+import org.programmingtechie.DisplayFormat.CustomDoubleSerializer;
 import org.programmingtechie.dto.request.OrderListDetailDto;
 
 @AllArgsConstructor

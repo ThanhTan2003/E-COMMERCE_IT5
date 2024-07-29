@@ -50,9 +50,16 @@ public class CategoryControllerV1 {
         return "Cập nhật thông tin loại sản phẩm thành công!";
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.OK)
     public String deleteCategory(@PathVariable String id) {
+        categoryService.deleteCategory(id);
+        return "Xóa thông tin loại sản phẩm thành công!";
+    }
+
+    @PostMapping("/delete")
+    @ResponseStatus(HttpStatus.OK)
+    public String deleteCategory1(@RequestBody String id) {
         categoryService.deleteCategory(id);
         return "Xóa thông tin loại sản phẩm thành công!";
     }

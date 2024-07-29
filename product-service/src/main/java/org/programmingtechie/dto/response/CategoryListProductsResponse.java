@@ -14,9 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoryListProductsResponse {
-    private Category category;
+    private CategoryResponse category;
 
     private Integer quantity;
 
-    List<Product> productList;
+    List<ProductResponse> productList;
 }
