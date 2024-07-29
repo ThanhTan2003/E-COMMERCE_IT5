@@ -43,21 +43,23 @@ public class ImportHistoryServiceV1 {
 
     // Lấy danh sách thông tin sản phẩm nhập kho
     public List<ImportHistoryResponse> getAll() {
-
         // Lay danh sach id san pham co trong danh sach
         List<String> productIds = importHistoryRepository.findDistinctProductIds();
 
         List<ProductExistingResponse> productExistingResponses = inventoryServiceV1.checkProductExistingWithFallback(productIds);
 
-        List<ImportHistory> exportHistories = importHistoryRepository.findAll();
+        List<ImportHistory> importHistories = importHistoryRepository.findAll();
 
-        List<ImportHistoryResponse> exportHistoryResponses = new ArrayList<>();
+        List<ImportHistoryResponse> importHistoryResponses = new ArrayList<>();
 
-        for (ImportHistory exportHistory : exportHistories) {
-            exportHistoryResponses.add(createImportHistoryResponse(exportHistory, productExistingResponses));
+        for (ImportHistory importHistory : importHistories) {
+            importHistoryResponses.add(createImportHistoryResponse(importHistory, productExistingResponses));
         }
 
-        return exportHistoryResponses;
+        // Sắp xếp danh sách theo date giảm dần
+        importHistoryResponses.sort((o1, o2) -> o2.getDate().compareTo(o1.getDate()));
+
+        return importHistoryResponses;
     }
 
     //

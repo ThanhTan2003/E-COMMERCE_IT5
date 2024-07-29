@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -233,5 +235,114 @@ public class CustomerServiceV1 {
                     .dateOfBirth(customer.get().getDateOfBirth())
                     .gender(customer.get().getGender())
                     .build();
+    }
+
+    private String extractMessageFromResponse(String responseBody, String serviceName) {
+        // Tìm chuỗi lỗi trong response
+        try {
+            int startIndex = responseBody.indexOf("\"message\":\"") + 11;
+            int endIndex = responseBody.indexOf("\"", startIndex);
+            return responseBody.substring(startIndex, endIndex);
+        } catch (Exception e) {
+            log.error("ERROR - Không thể trích xuất thông báo lỗi từ phản hồi: {}", responseBody, e);
+            return "Dịch vụ " + serviceName + " không khả dụng. Vui lòng kiểm tra và thử lại.";
+        }
+    }
+
+    public CustomerOrderList getOrderListById(String id) {
+        OrderResponse[] orderResponses;
+        try
+        {
+            orderResponses = webClientBuilder.build().get()
+                    .uri("http://order-service/api/v1/order/customer-id",
+                            uriBuilder -> uriBuilder.queryParam("customerId", id).build())
+                    .retrieve()
+                    .bodyToMono(OrderResponse[].class)
+                    .block();
+        }
+        catch (WebClientResponseException e) {
+            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(), "quản lý đơn hàng (order-service)");
+            log.error("ERROR - Xảy ra lỗi khi giao tiếp với order-service: Status code - {}, Body - {}", e.getStatusCode(), errorMessage);
+            throw new IllegalArgumentException(errorMessage);
+        }
+        catch (Exception e) {
+            log.error("ERROR: Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. " + e.getMessage());
+            throw new IllegalStateException("Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. ");
+        }
+        Optional<Customer> customer = customerRepository.findById(id);
+
+        if(customer.isEmpty())
+            throw new IllegalArgumentException(String.format("Khách hàng có id %s không hợp lệ! Vui lòng kiểm tra lại"));
+
+        CustomerResponse customerResponse = CustomerResponse.builder()
+                .id(customer.get().getId())
+                .fullName(customer.get().getFullName())
+                .phoneNumber(customer.get().getPhoneNumber())
+                .email(customer.get().getEmail())
+                .dateOfBirth(customer.get().getDateOfBirth())
+                .gender(customer.get().getGender())
+                .address(customer.get().getAddress())
+                .address(customer.get().getAddress())
+                .build();
+
+        //assert orderResponses != null;
+
+        // Sắp xếp orderResponses theo date giảm dần
+        Arrays.sort(orderResponses, Comparator.comparing(OrderResponse::getDate).reversed());
+
+        return CustomerOrderList.builder()
+                .customerResponse(customerResponse)
+                .totalOrder(orderResponses.length)
+                .orderResponses(Arrays.stream(orderResponses).toList())
+                .build();
+    }
+
+    public CustomerOrderList getOrderListByPhoneNumber(String phoneNumber)
+    {
+        OrderResponse[] orderResponses;
+        try
+        {
+            orderResponses = webClientBuilder.build().get()
+                    .uri("http://order-service/api/v1/order/customer-phone",
+                            uriBuilder -> uriBuilder.queryParam("customerPhoneNumber", phoneNumber).build())
+                    .retrieve()
+                    .bodyToMono(OrderResponse[].class)
+                    .block();
+        }
+        catch (WebClientResponseException e) {
+            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(), "quản lý đơn hàng (order-service)");
+            log.error("ERROR - Xảy ra lỗi khi giao tiếp với order-service: Status code - {}, Body - {}", e.getStatusCode(), errorMessage);
+            throw new IllegalArgumentException(errorMessage);
+        }
+        catch (Exception e) {
+            log.error("ERROR: Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. " + e.getMessage());
+            throw new IllegalStateException("Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. ");
+        }
+        Optional<Customer> customer = customerRepository.findByPhoneNumber(phoneNumber);
+
+        if(customer.isEmpty())
+            throw new IllegalArgumentException(String.format("Khách hàng có id %s không hợp lệ! Vui lòng kiểm tra lại"));
+
+        CustomerResponse customerResponse = CustomerResponse.builder()
+                .id(customer.get().getId())
+                .fullName(customer.get().getFullName())
+                .phoneNumber(customer.get().getPhoneNumber())
+                .email(customer.get().getEmail())
+                .dateOfBirth(customer.get().getDateOfBirth())
+                .gender(customer.get().getGender())
+                .address(customer.get().getAddress())
+                .address(customer.get().getAddress())
+                .build();
+
+        //assert orderResponses != null;
+
+        // Sắp xếp orderResponses theo date giảm dần
+        Arrays.sort(orderResponses, Comparator.comparing(OrderResponse::getDate).reversed());
+
+        return CustomerOrderList.builder()
+                .customerResponse(customerResponse)
+                .totalOrder(orderResponses.length)
+                .orderResponses(Arrays.stream(orderResponses).toList())
+                .build();
     }
 }

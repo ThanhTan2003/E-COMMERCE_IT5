@@ -17,8 +17,6 @@ public class CustomerResponse
 
     private String fullName;
 
-    private String address;
-
     private String phoneNumber;
 
     private String email;
@@ -26,4 +24,6 @@ public class CustomerResponse
     private LocalDate dateOfBirth;
 
     private String gender;
+
+    private String address;
 }

@@ -9,8 +9,7 @@ import org.programmingtechie.repository.ExportHistoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +57,14 @@ public class ExportHistoryServiceV1 {
         for (ExportHistory exportHistory : exportHistories) {
             exportHistoryResponses.add(createExportHistoryResponse(exportHistory, productExistingResponses));
         }
+
+        // Sắp xếp danh sách theo date giảm dần
+        Collections.sort(exportHistoryResponses, new Comparator<ExportHistoryResponse>() {
+            @Override
+            public int compare(ExportHistoryResponse o1, ExportHistoryResponse o2) {
+                return o2.getDate().compareTo(o1.getDate());
+            }
+        });
 
         return exportHistoryResponses;
     }

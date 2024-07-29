@@ -9,43 +9,24 @@ import lombok.NoArgsConstructor;
 import org.programmingtechie.DisplayFormat.CustomDoubleDeserializer;
 import org.programmingtechie.DisplayFormat.CustomDoubleSerializer;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class OrderResponse {
+public class OrderDetailResponse {
     private String id;
 
-    private String customerId;
+    private String productId;
 
-    private String customerName;
+    private String productName;
 
-    private String phoneNumber;
+    @JsonSerialize(using = CustomDoubleSerializer.class)
+    @JsonDeserialize(using = CustomDoubleDeserializer.class)
+    private Double price;
 
-    private String statusHanle;
-
-    private String statusCheckout;
-
-    private String paymentMethod;
-
-    private String note;
-
-    private LocalDateTime date;
+    private Integer quantity;
 
     @JsonSerialize(using = CustomDoubleSerializer.class)
     @JsonDeserialize(using = CustomDoubleDeserializer.class)
     private Double totalAmount;
-
-    @JsonSerialize(using = CustomDoubleSerializer.class)
-    @JsonDeserialize(using = CustomDoubleDeserializer.class)
-    private Double discount;
-
-    @JsonSerialize(using = CustomDoubleSerializer.class)
-    @JsonDeserialize(using = CustomDoubleDeserializer.class)
-    private Double total;
-
-    private List<OrderDetailResponse> orderDetailResponses;
 }
