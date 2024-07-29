@@ -87,4 +87,11 @@ public class OrderControllerV1 {
         return orderService.getOrderDetailByOrderId(orderId);
     }
 
+    @GetMapping("/first-order")
+    @ResponseStatus(HttpStatus.OK)
+    public OrderResponse findFirstOrderByCustomerId(@RequestParam String id)
+    {
+        return orderService.findFirstOrderByCustomerId(id);
+    }
+
 }

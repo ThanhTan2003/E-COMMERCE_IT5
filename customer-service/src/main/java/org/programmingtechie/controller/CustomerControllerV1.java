@@ -71,14 +71,14 @@ public class CustomerControllerV1
         return customerService_V1.getAllCustomers();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("update/{id}")
     @ResponseStatus(HttpStatus.OK)
     public String updateCustomer(@PathVariable String id, @RequestBody CustomerRequest customerRequest) {
         customerService_V1.updateCustomer(id, customerRequest);
         return "Cập nhật thông tin khách hàng thành công!";
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("delete/{id}")
     @ResponseStatus(HttpStatus.OK)
     public String deleteCustomer(@PathVariable String id) {
         customerService_V1.deleteCustomer(id);

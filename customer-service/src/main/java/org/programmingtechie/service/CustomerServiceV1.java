@@ -141,9 +141,32 @@ public class CustomerServiceV1 {
     {
         Optional<Customer> customer = customerRepository.findById(id);
         if(customer.isEmpty())
-        {
             throw new IllegalArgumentException("Khách hàng không tồn tại. Vui lòng kiểm tra lại!");
+
+        OrderResponse orderResponse;
+
+        try
+        {
+            orderResponse = webClientBuilder.build().get()
+                    .uri("http://order-service/api/v1/order/first-order",
+                            uriBuilder -> uriBuilder.queryParam("id", id).build())
+                    .retrieve()
+                    .bodyToMono(OrderResponse.class)
+                    .block();
         }
+        catch (WebClientResponseException e) {
+            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(), "quản lý đơn hàng (order-service)");
+            log.error("ERROR - Xảy ra lỗi khi giao tiếp với order-service: Status code - {}, Body - {}", e.getStatusCode(), errorMessage);
+            throw new IllegalArgumentException("Không thể xóa thông tin khách hàng. Vui lòng thử lại sau!");
+        }
+        catch (Exception e) {
+            log.error("ERROR: Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. " + e.getMessage());
+            throw new IllegalStateException("Không thể xóa thông tin khách hàng. Vui lòng thử lại sau!");
+        }
+
+        if(orderResponse != null)
+            throw new IllegalArgumentException("Không thể xóa thông tin khách hàng vì đã có đơn hàng trong hệ thống!");
+
         customerRepository.delete(customer.get());
     }
 
@@ -174,9 +197,10 @@ public class CustomerServiceV1 {
         if(customer.isEmpty())
             throw new IllegalArgumentException("Không tìm thấy khách hàng có id là " + id + "!");
 
+        OrderResponse[] orderResponses;
         try
         {
-            OrderResponse[] orderResponses = webClientBuilder.build().get()
+            orderResponses = webClientBuilder.build().get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/api/v1/order")
                             .queryParam("list_product_id", String.join(",", id))
@@ -184,24 +208,6 @@ public class CustomerServiceV1 {
                     .retrieve()
                     .bodyToMono(OrderResponse[].class)
                     .block();
-
-            if (orderResponses == null) {
-                throw new IllegalStateException("Không có đơn hàng!");
-            }
-            CustomerResponse customerResponse = CustomerResponse.builder()
-                    .id(customer.get().getId())
-                    .fullName(customer.get().getFullName())
-                    .address(customer.get().getAddress())
-                    .phoneNumber(customer.get().getPhoneNumber())
-                    .email(customer.get().getEmail())
-                    .dateOfBirth(customer.get().getDateOfBirth())
-                    .gender(customer.get().getGender())
-                    .build();
-
-            return CustomerOrderList.builder()
-                    .customerResponse(customerResponse)
-                    .orderResponses(Arrays.stream(orderResponses).toList())
-                    .build();
         }
         catch (WebClientException e) {
             log.info("ERROR - Xảy ra lỗi khi giao tiếp với order-service: {}", e.getMessage());
@@ -212,6 +218,24 @@ public class CustomerServiceV1 {
 
             throw new IllegalArgumentException("Có lỗi xảy ra khi kiểm tra đơn hàng. Vui lòng thử lại sau!");
         }
+
+        if (orderResponses == null) {
+            throw new IllegalStateException("Không có đơn hàng!");
+        }
+        CustomerResponse customerResponse = CustomerResponse.builder()
+                .id(customer.get().getId())
+                .fullName(customer.get().getFullName())
+                .address(customer.get().getAddress())
+                .phoneNumber(customer.get().getPhoneNumber())
+                .email(customer.get().getEmail())
+                .dateOfBirth(customer.get().getDateOfBirth())
+                .gender(customer.get().getGender())
+                .build();
+
+        return CustomerOrderList.builder()
+                .customerResponse(customerResponse)
+                .orderResponses(Arrays.stream(orderResponses).toList())
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -272,7 +296,7 @@ public class CustomerServiceV1 {
         Optional<Customer> customer = customerRepository.findById(id);
 
         if(customer.isEmpty())
-            throw new IllegalArgumentException(String.format("Khách hàng có id %s không hợp lệ! Vui lòng kiểm tra lại"));
+            throw new IllegalArgumentException(String.format("Không tìm thấy thông tin khách hàng. Vui lòng kiểm tra lại!"));
 
         CustomerResponse customerResponse = CustomerResponse.builder()
                 .id(customer.get().getId())
@@ -321,7 +345,7 @@ public class CustomerServiceV1 {
         Optional<Customer> customer = customerRepository.findByPhoneNumber(phoneNumber);
 
         if(customer.isEmpty())
-            throw new IllegalArgumentException(String.format("Khách hàng có id %s không hợp lệ! Vui lòng kiểm tra lại"));
+            throw new IllegalArgumentException(String.format("Không tìm thấy thông tin khách hàng. Vui lòng kiểm tra lại!"));
 
         CustomerResponse customerResponse = CustomerResponse.builder()
                 .id(customer.get().getId())
