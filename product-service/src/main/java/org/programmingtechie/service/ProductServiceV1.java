@@ -146,14 +146,6 @@ public class ProductServiceV1 {
         return optionalProduct.get();
     }
 
-    public List<Product> getProductByCategoryId(String categoryId) {
-        List<Product> products = productRepository.findByCategoryId(categoryId);
-        if (products.isEmpty()) {
-            throw new IllegalArgumentException("Không tìm thấy thông tin sản phẩm!");
-        }
-        return products;
-    }
-
     public void updateProduct(String id, ProductRequest productRequest) {
         validCheckProductRequest(productRequest);
         Optional<Product> optionalProduct = productRepository.findById(id);
