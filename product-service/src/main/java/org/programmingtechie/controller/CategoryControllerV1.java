@@ -2,8 +2,10 @@ package org.programmingtechie.controller;
 
 import java.util.List;
 
-import org.programmingtechie.dto.CategoryRequest;
+import org.programmingtechie.dto.request.CategoryRequest;
+import org.programmingtechie.dto.response.CategoryListProductsResponse;
 import org.programmingtechie.model.Category;
+import org.programmingtechie.model.Product;
 import org.programmingtechie.service.CategoryServiceV1;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -53,5 +55,17 @@ public class CategoryControllerV1 {
     public String deleteCategory(@PathVariable String id) {
         categoryService.deleteCategory(id);
         return "Xóa thông tin loại sản phẩm thành công!";
+    }
+
+    @GetMapping("/list-products/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryListProductsResponse getProductByCategoryId(@PathVariable String id) {
+        return categoryService.getListProductsById(id);
+    }
+
+    @PostMapping("/list-products")
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryListProductsResponse getProductByCategoryId1(@RequestBody String categoryId) {
+        return categoryService.getListProductsById(categoryId);
     }
 }

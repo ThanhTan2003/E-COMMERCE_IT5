@@ -9,12 +9,12 @@ services:
       POSTGRES_PASSWORD: tranthanhtan
       PGDATA: /data/postgres
     volumes:
-      - ./postgres-product:/data/postgres
+      - D:/Hoc tap/Thuc tap/Do an/Database/postgres-product:/data/postgres
     ports:
       - "5431:5432"
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -28,12 +28,12 @@ services:
       POSTGRES_PASSWORD: tranthanhtan
       PGDATA: /data/postgres
     volumes:
-      - ./postgres-order:/data/postgres
+      - D:/Hoc tap/Thuc tap/Do an/Database/postgres-order:/data/postgres
     ports:
       - "5432:5432"
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -47,12 +47,12 @@ services:
       POSTGRES_PASSWORD: tranthanhtan
       PGDATA: /data/postgres
     volumes:
-      - ./postgres-inventory:/data/postgres
+      - D:/Hoc tap/Thuc tap/Do an/Database/postgres-inventory:/data/postgres
     ports:
       - "5433:5432"
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -66,12 +66,12 @@ services:
       POSTGRES_PASSWORD: tranthanhtan
       PGDATA: /data/postgres
     volumes:
-      - ./postgres-customer:/data/postgres
+      - D:/Hoc tap/Thuc tap/Do an/Database/postgres-customer:/data/postgres
     ports:
       - "5434:5432"
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -83,13 +83,14 @@ services:
       - "8761:8761"
     depends_on:
       - jaeger
+    env_file:
+      - variables.env
     environment:
       - EUREKA_INSTANCE_HOSTNAME=discovery-server
       - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
       - EUREKA_CLIENT_FETCH_REGISTRY=false
-      - JAEGER_AGENT_HOST=jaeger
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://${HOST}:8761/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -99,43 +100,54 @@ services:
     image: thanhtantg2003/product-service:latest
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-product:5432/product-service
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=tranthanhtan
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://${HOST}:5432/product-service
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
-      - SPRING_PROFILES_ACTIVE=docker
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=product-service
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_TRACES_EXPORTER=jaeger
+      - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger:14250
+    env_file:
+      - variables.env
     ports:
       - "8081:8081"
     depends_on:
       - discovery-server
-      - postgres-product
       - api-gateway
       - jaeger
+      - postgres-product
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://${HOST}:8082/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 
   order-service:
     container_name: order-service
     image: thanhtantg2003/order-service:latest
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-order:5432/order-service
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=tranthanhtan
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://${HOST}:5432/order-service
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_ENDPOINT=http://jaeger:4318
+    env_file:
+      - variables.env
     ports:
       - "8082:8082"
     depends_on:
       - discovery-server
-      - postgres-order
       - api-gateway
       - jaeger
+      - postgres-order
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://${HOST}:8082/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -145,22 +157,23 @@ services:
     image: thanhtantg2003/inventory-service:latest
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-inventory:5432/inventory-service
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=tranthanhtan
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://${HOST}:5432/inventory-service
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_ENDPOINT=http://jaeger:4318
+    env_file:
+      - variables.env
     ports:
       - "8083:8083"
     depends_on:
       - discovery-server
-      - postgres-inventory
       - api-gateway
       - jaeger
+      - postgres-inventory
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://${HOST}:8083/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -170,22 +183,23 @@ services:
     image: thanhtantg2003/customer-service:latest
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-customer:5432/customer-service
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=tranthanhtan
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://${HOST}:5432/customer-service
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_ENDPOINT=http://jaeger:4318
+    env_file:
+      - variables.env
     ports:
       - "8084:8084"
     depends_on:
       - discovery-server
-      - postgres-customer
       - api-gateway
       - jaeger
+      - postgres-customer
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://${HOST}:8084/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -197,34 +211,20 @@ services:
       - "8080:8080"
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_ENDPOINT=http://jaeger:4318
+    env_file:
+      - variables.env
     depends_on:
       - discovery-server
       - jaeger
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://${HOST}:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
+
   jaeger:
-    image: ${REGISTRY:-}jaegertracing/all-in-one:${JAEGER_VERSION:-latest}
+    container_name: jaeger
+    image: jaegertracing/all-in-one:latest
     ports:
       - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
-    environment:
-      - LOG_LEVEL=debug
-  hotrod:
-    image: ${REGISTRY:-}jaegertracing/example-hotrod:${JAEGER_VERSION:-latest}
-    # To run the latest trunk build, find the tag at Docker Hub and use the line below
-    # https://hub.docker.com/r/jaegertracing/example-hotrod-snapshot/tags
-    #image: jaegertracing/example-hotrod-snapshot:0ab8f2fcb12ff0d10830c1ee3bb52b745522db6c
-    ports:
-      - "9090:8080"
-      - "9093:8083"
-    command: ["all"]
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
-    depends_on:
-      - jaeger
+      - "14250:14250"

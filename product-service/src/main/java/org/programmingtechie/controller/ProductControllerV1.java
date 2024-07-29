@@ -2,8 +2,8 @@ package org.programmingtechie.controller;
 
 import java.util.List;
 
-import org.programmingtechie.dto.ProductRequest;
-import org.programmingtechie.dto.ProductResponse;
+import org.programmingtechie.dto.request.ProductRequest;
+import org.programmingtechie.dto.response.ProductResponse;
 import org.programmingtechie.model.Product;
 import org.programmingtechie.service.ProductServiceV1;
 import org.springframework.http.HttpStatus;
@@ -43,9 +43,15 @@ public class ProductControllerV1 {
         return productService.getProductByName(name);
     }
 
+    @GetMapping("/category-id/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Product> getProductByCategoryId(@PathVariable String id) {
+        return productService.getProductByCategoryId(id);
+    }
+
     @PostMapping("/category-id")
     @ResponseStatus(HttpStatus.OK)
-    public List<Product> getProductByCategoryId(@RequestBody String categoryId) {
+    public List<Product> getProductByCategoryId1(@RequestBody String categoryId) {
         return productService.getProductByCategoryId(categoryId);
     }
 

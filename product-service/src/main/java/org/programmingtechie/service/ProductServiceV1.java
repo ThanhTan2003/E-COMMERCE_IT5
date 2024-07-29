@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.programmingtechie.dto.InventoryResponse;
-import org.programmingtechie.dto.ProductRequest;
-import org.programmingtechie.dto.ProductResponse;
+import org.programmingtechie.dto.response.InventoryResponse;
+import org.programmingtechie.dto.request.ProductRequest;
+import org.programmingtechie.dto.response.ProductResponse;
 import org.programmingtechie.model.Category;
 import org.programmingtechie.model.Product;
 import org.programmingtechie.repository.CategoryRepository;
