@@ -229,7 +229,7 @@ public class OrderServiceV1 {
         order.setOrderList(orderDetails);
         orderRepository.save(order);
 
-        // Lấy danh sách chi tiết đơn hàng
+        // Lấy danh sách chi tiết đơn hàng sau khi đặt xong
         List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
         for (OrderDetail orderDetail : orderDetails) {
             OrderDetailResponse orderDetailResponse = OrderDetailResponse.builder()

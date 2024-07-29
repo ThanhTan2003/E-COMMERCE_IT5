@@ -29,8 +29,12 @@ public class ProductServiceV1 {
 
     final WebClient.Builder webClientBuilder;
 
+    // Tạo mới sản phẩm
     public void createProduct(ProductRequest productRequest) {
         validCheckProductRequest(productRequest);
+        if (productRepository.existsByName(productRequest.getName())) {
+            throw new IllegalArgumentException("Sản phẩm với tên đã tồn tại vui lòng nhập lại.");
+        }
         Product product = Product.builder()
                 .name(productRequest.getName())
                 .categoryId(productRequest.getCategoryId())
@@ -43,6 +47,7 @@ public class ProductServiceV1 {
         log.info("Product {} is saved", product.getId());
     }
 
+    // Kiểm tra hợp lệ của mỗi trường nhập vào
     void validCheckProductRequest(ProductRequest productRequest) {
         if (productRequest.getName() == null || productRequest.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Vui lòng nhập tên sản phẩm!");
@@ -50,12 +55,27 @@ public class ProductServiceV1 {
         if (productRequest.getPrice() <= 0) {
             throw new IllegalArgumentException("Giá tiền sản phẩm phải lớn hơn 0!");
         }
+        if (!isNumeric(productRequest.getPrice())) {
+            throw new IllegalArgumentException("Giá tiền sản phẩm phải là số!");
+        }
     }
 
+    //Kiểm tra số tiền nhập vào là kí tự số
+    private boolean isNumeric(Double price) {
+        try {
+            Double.parseDouble(String.valueOf(price));
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    // Lấy hết thông tin sản phẩm theo mặc định
     public List<Product> getAllProduct() {
         return productRepository.findAll();
     }
 
+    // Lấy hết thông tin sản phẩm kèm theo tên loại sản phẩm (*)
     public List<ProductResponse> getAllProducts() {
         List<Product> products = productRepository.findAll();
         List<ProductResponse> productResponses = new ArrayList<>();
@@ -73,7 +93,7 @@ public class ProductServiceV1 {
                         .id(product.getId())
                         .name(product.getName())
                         .categoryId(product.getCategoryId())
-                        .categoryName(categoryName)
+                        .categoryName(categoryName)// (*)
                         .description(product.getDescription())
                         .price(product.getPrice())
                         .statusBusiness(product.getStatusBusiness())
@@ -154,9 +174,21 @@ public class ProductServiceV1 {
         return products;
     }
 
+    public List<Product> getProductByCategoryName(String categoryName) {
+        List<Product> products = productRepository.findByCategoryName(categoryName);
+        if (products.isEmpty()) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin sản phẩm!");
+        }
+        return products;
+    }
+
+    // Cập nhật sản phẩm
     public void updateProduct(String id, ProductRequest productRequest) {
         validCheckProductRequest(productRequest);
         Optional<Product> optionalProduct = productRepository.findById(id);
+        if (productRepository.existsByName(productRequest.getName())) {
+            throw new IllegalArgumentException("Sản phẩm với tên đã tồn tại vui lòng nhập lại.");
+        }
         if (optionalProduct.isPresent()) {
             Product product = optionalProduct.get();
             product.setName(productRequest.getName());
@@ -175,18 +207,29 @@ public class ProductServiceV1 {
     }
 
     public void deleteProduct(String id) {
+
         Optional<Product> optionalProduct = productRepository.findById(id);
+        Product product = optionalProduct.get();
 
-        if (optionalProduct.isPresent()) {
-            productRepository.deleteById(id);
+        List<String> productIds = new ArrayList<>();
+        productIds.add(product.getId());
+        try {
+            List<InventoryResponse> inventoryResponses = checkProductInStock(productIds);
+            if (!inventoryResponses.isEmpty())
+                throw new IllegalArgumentException("Can not delete this product");
 
-            log.info("Product {} is deleted", id);
-        } else {
+            if (optionalProduct.isPresent() && product.getStatusBusiness().equals("Đang kinh doanh"))
+                throw new IllegalArgumentException("Can not delete this product");
+
+            productRepository.delete(product);
+
+        } catch (Exception e) {
             log.error("Product with ID {} not found", id);
             throw new IllegalArgumentException("Product with ID " + id + " not found");
         }
     }
 
+    // Kiểm tra sản phẩm có sẵn trong danh mục hay không?
     @Transactional(readOnly = true)
     public ProductResponse isExisting(String id) {
         Optional<Product> product = productRepository.findById(id);
@@ -210,22 +253,19 @@ public class ProductServiceV1 {
         }
     }
 
+    // Kiểm tra sản phẩm có sẵn trong danh mục hay không?
     @Transactional(readOnly = true)
     public List<ProductResponse> isExisting(List<String> productIds) {
         List<ProductResponse> productResponses = new ArrayList<>();
-        for(String id : productIds)
-        {
+        for (String id : productIds) {
             Optional<Product> productOptional = productRepository.findById(id);
-            if(productOptional.isEmpty())
-            {
+            if (productOptional.isEmpty()) {
                 ProductResponse productResponse = ProductResponse.builder()
                         .id(id)
                         .isExisting(false)
                         .build();
                 productResponses.add(productResponse);
-            }
-            else
-            {
+            } else {
                 Product product = productOptional.get();
                 Optional<Category> category = categoryRepository.findById(product.getCategoryId());
                 String categoryName = category.isEmpty() ? "Không tồn tại" : category.get().getName();

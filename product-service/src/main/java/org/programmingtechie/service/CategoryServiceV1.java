@@ -24,6 +24,9 @@ public class CategoryServiceV1 {
 
     public void createCategory(CategoryRequest categoryRequest) {
         validCheckCategoryRequest(categoryRequest);
+        if (categoryRepository.existsByName(categoryRequest.getName())) {
+            throw new IllegalArgumentException("Tên loại sản phẩm tồn tại vui lòng nhập lại.");
+        }
         Category category = Category.builder()
                 .name(categoryRequest.getName())
                 .build();
@@ -61,6 +64,9 @@ public class CategoryServiceV1 {
 
     public void updateCategory(String id, CategoryRequest categoryRequest) {
         Optional<Category> optionalCategory = categoryRepository.findById(id);
+        if (categoryRepository.existsByName(categoryRequest.getName())) {
+            throw new IllegalArgumentException("Tên loại sản phẩm tồn tại vui lòng nhập lại.");
+        }
         if (optionalCategory.isPresent()) {
             Category category = optionalCategory.get();
             category.setName(categoryRequest.getName());
@@ -93,7 +99,7 @@ public class CategoryServiceV1 {
         Optional<Category> category = categoryRepository.findById(id);
 
         List<Product> productList = productRepository.findByCategoryId(id);
-
+      
         return CategoryListProductsResponse.builder()
                 .category(category.get())
                 .quantity(productList.size())

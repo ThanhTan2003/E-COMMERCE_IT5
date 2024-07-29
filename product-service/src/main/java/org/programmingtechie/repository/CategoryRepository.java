@@ -10,5 +10,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource
 public interface CategoryRepository extends JpaRepository<Category, String> {
     Optional<Category> findByName(String name);
+
     List<Category> findByStatusBusiness(String statusBusiness);
+
+    boolean existsByName(String name);
 }
