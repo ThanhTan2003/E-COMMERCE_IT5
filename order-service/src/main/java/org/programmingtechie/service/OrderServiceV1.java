@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.programmingtechie.dto.request.ExportProductRequest;
 import org.programmingtechie.dto.request.OrderListDetailDto;
@@ -68,39 +69,43 @@ public class OrderServiceV1 {
             }
 
             return customerExistingResponse;
-        }
-        catch (WebClientResponseException e) {
-            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(), "quản lý khách hàng (customer-service)");
-            log.error("ERROR - Xảy ra lỗi khi giao tiếp với customer-service: Status code - {}, Body - {}", e.getStatusCode(), errorMessage);
+        } catch (WebClientResponseException e) {
+            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(),
+                    "quản lý khách hàng (customer-service)");
+            log.error("ERROR - Xảy ra lỗi khi giao tiếp với customer-service: Status code - {}, Body - {}",
+                    e.getStatusCode(), errorMessage);
             throw new IllegalArgumentException(errorMessage);
-        }
-        catch (Exception e) {
-            log.error("ERROR: Dịch vụ quản lý khách hàng (customer-service) không khả dụng. Vui lòng kiểm tra và thử lại. " + e.getMessage());
-            throw new IllegalStateException("Dịch vụ quản lý khách hàng (customer-service) không khả dụng. Vui lòng kiểm tra và thử lại. ");
+        } catch (Exception e) {
+            log.error(
+                    "ERROR: Dịch vụ quản lý khách hàng (customer-service) không khả dụng. Vui lòng kiểm tra và thử lại. "
+                            + e.getMessage());
+            throw new IllegalStateException(
+                    "Dịch vụ quản lý khách hàng (customer-service) không khả dụng. Vui lòng kiểm tra và thử lại. ");
         }
     }
 
     // Kiểm tra các sản phẩm đặt hàng có trong product-service không?
-    List<ProductExistingResponse> checkProductExisting(List<String> productIds)
-    {
+    List<ProductExistingResponse> checkProductExisting(List<String> productIds) {
         ProductExistingResponse[] productResponses;
-        try
-        {
+        try {
             productResponses = webClientBuilder.build().get()
                     .uri("http://product-service/api/v1/product/is-existing",
-                            uriBuilder -> uriBuilder.queryParam("list_product_id",productIds).build())
+                            uriBuilder -> uriBuilder.queryParam("list_product_id", productIds).build())
                     .retrieve()
                     .bodyToMono(ProductExistingResponse[].class)
                     .block();
-        }
-        catch (WebClientResponseException e) {
-            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(), "quản lý sản phẩm (product-service)");
-            log.error("ERROR - Xảy ra lỗi khi giao tiếp với product-service: Status code - {}, Body - {}", e.getStatusCode(), errorMessage);
+        } catch (WebClientResponseException e) {
+            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(),
+                    "quản lý sản phẩm (product-service)");
+            log.error("ERROR - Xảy ra lỗi khi giao tiếp với product-service: Status code - {}, Body - {}",
+                    e.getStatusCode(), errorMessage);
             throw new IllegalArgumentException(errorMessage);
-        }
-        catch (Exception e) {
-            log.error("ERROR: Dịch vụ quản lý sản phẩm (product-service) không khả dụng. Vui lòng kiểm tra và thử lại. " + e.getMessage());
-            throw new IllegalStateException("Dịch vụ quản lý sản phẩm (product-service) không khả dụng. Vui lòng kiểm tra và thử lại.");
+        } catch (Exception e) {
+            log.error(
+                    "ERROR: Dịch vụ quản lý sản phẩm (product-service) không khả dụng. Vui lòng kiểm tra và thử lại. "
+                            + e.getMessage());
+            throw new IllegalStateException(
+                    "Dịch vụ quản lý sản phẩm (product-service) không khả dụng. Vui lòng kiểm tra và thử lại.");
         }
 
         if (productResponses == null) {
@@ -111,7 +116,8 @@ public class OrderServiceV1 {
         for (ProductExistingResponse productResponse : productResponses) {
             if (!productResponse.getIsExisting()) {
                 throw new IllegalStateException(
-                        String.format("Sản phẩm thứ %d có mã id %s không tồn tại. Vui lòng kiểm tra lại!", index, productResponse.getId()));
+                        String.format("Sản phẩm thứ %d có mã id %s không tồn tại. Vui lòng kiểm tra lại!", index,
+                                productResponse.getId()));
             }
             index++;
         }
@@ -119,10 +125,9 @@ public class OrderServiceV1 {
     }
 
     // Gửi yêu cầu xuất kho đến inventory-service
-    void exportProductRequest(List<ExportProductRequest> exportProductRequests)
-    {
+    void exportProductRequest(List<ExportProductRequest> exportProductRequests) {
         try {
-            if(exportProductRequests.isEmpty())
+            if (exportProductRequests.isEmpty())
                 throw new AlreadyBoundException("Vui lòng nhập thông tin sản phẩm!");
             Boolean export = webClientBuilder.build().post()
                     .uri("http://inventory-service/api/v1/inventory/export-product")
@@ -130,15 +135,18 @@ public class OrderServiceV1 {
                     .retrieve()
                     .bodyToMono(Boolean.class)
                     .block();
-        }
-        catch (WebClientResponseException e) {
-            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(), "quản lý kho (inventory-service)");
-            log.error("ERROR - Xảy ra lỗi khi giao tiếp với inventory-service: Status code - {}, Body - {}", e.getStatusCode(), errorMessage);
+        } catch (WebClientResponseException e) {
+            String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(),
+                    "quản lý kho (inventory-service)");
+            log.error("ERROR - Xảy ra lỗi khi giao tiếp với inventory-service: Status code - {}, Body - {}",
+                    e.getStatusCode(), errorMessage);
             throw new IllegalArgumentException(errorMessage);
-        }
-        catch (Exception e) {
-            log.error("ERROR: Dịch vụ quản lý kho (inventory-service) không khả dụng. Vui lòng kiểm tra và thử lại. " + e.getMessage());
-            throw new IllegalStateException("Dịch vụ quản lý kho (inventory-service) không khả dụng. Vui lòng kiểm tra và thử lại.");
+        } catch (Exception e) {
+            log.error(
+                    "ERROR: Dịch vụ quản lý kho (inventory-service) không khả dụng. Vui lòng kiểm tra và thử lại. "
+                            + e.getMessage());
+            throw new IllegalStateException(
+                    "Dịch vụ quản lý kho (inventory-service) không khả dụng. Vui lòng kiểm tra và thử lại.");
         }
     }
 
@@ -150,14 +158,13 @@ public class OrderServiceV1 {
 
         // Lấy danh sách mã Id sản phẩm đặt hàng
         List<String> productIds = orderRequest.getOrderListDetailDto().stream().map(
-                OrderListDetailDto::getProductId
-        ).toList();
+                OrderListDetailDto::getProductId).toList();
 
         // Kiểm tra các sản phẩm đặt hàng có trong product-service không?
         List<ProductExistingResponse> productExistingResponses = checkProductExisting(productIds);
 
         //
-        for(int i = 0; i < orderRequest.getOrderListDetailDto().size(); i++)
+        for (int i = 0; i < orderRequest.getOrderListDetailDto().size(); i++)
             orderRequest.getOrderListDetailDto().get(i).setProductName(productExistingResponses.get(i).getName());
 
         // Kiểm tra số điện thoại khách hàng có trong customer-service không?
@@ -192,7 +199,7 @@ public class OrderServiceV1 {
         }
         orderRequest.setTotal(orderRequest.getTotalAmount() - orderRequest.getDiscount());
 
-        //Tạo hóa đơn
+        // Tạo hóa đơn
         Order order = Order.builder()
                 .customerId(orderRequest.getCustomerId())
                 .customerName(customerExistingResponse.getFullName())
@@ -205,9 +212,8 @@ public class OrderServiceV1 {
                 .total(orderRequest.getTotal())
                 .note(orderRequest.getNote())
                 .build();
-        
 
-        //Tạo chi tiết hóa đơn
+        // Tạo chi tiết hóa đơn
         List<OrderDetail> orderDetails = new ArrayList<>();
         for (OrderListDetailDto orderListDetailDto : orderRequest.getOrderListDetailDto()) {
             OrderDetail orderDetail = OrderDetail.builder()
@@ -219,15 +225,13 @@ public class OrderServiceV1 {
                     .totalAmount(orderListDetailDto.getTotalAmount())
                     .build();
             orderDetails.add(orderDetail);
-           // orderDetailRepository.save(orderDetail);
         }
         order.setOrderList(orderDetails);
         orderRepository.save(order);
 
-        //Lấy danh sách chi tiết đơn hàng
+        // Lấy danh sách chi tiết đơn hàng
         List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
-        for(OrderDetail orderDetail : orderDetails)
-        {
+        for (OrderDetail orderDetail : orderDetails) {
             OrderDetailResponse orderDetailResponse = OrderDetailResponse.builder()
                     .id(orderDetail.getId())
                     .productId(orderDetail.getProductId())
@@ -240,7 +244,7 @@ public class OrderServiceV1 {
             orderDetailResponses.add(orderDetailResponse);
         }
 
-        //Hiển thị chi tiết đơn hàng sau khi đặt xong
+        // Hiển thị chi tiết đơn hàng sau khi đặt xong
         OrderResponse orderResponse = OrderResponse.builder()
                 .id(order.getId())
                 .customerId(customerExistingResponse.getId())
@@ -259,7 +263,6 @@ public class OrderServiceV1 {
 
         return orderResponse;
     }
-
 
     public void updateOrder(String id, OrderRequest orderRequest) {
         Optional<Order> optionalOrder = orderRepository.findById(id);
@@ -326,81 +329,63 @@ public class OrderServiceV1 {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse isCustomerExisting(String customerId) {
-//        Optional<Order> optionalOrder = orderRepository.findByCustomerId(customerId);
-//
-//        if (optionalOrder.isEmpty()) {
-//            return OrderResponse.builder()
-//                    .customerId(null)
-//                    .build();
-//        } else {
-//            Order order = optionalOrder.get();
-//            List<OrderDetailResponse> orderListDetailDtos = order.getOrderList().stream()
-//                    .map(this::convertToOrderListDetailDto)
-//                    .collect(Collectors.toList());
-//            return OrderResponse.builder()
-//                    .id(order.getId())
-//                    .customerId(order.getCustomerId())
-//                    .phoneNumber(order.getPhoneNumber())
-//                    .statusHanle(order.getStatusHandle())
-//                    .statusCheckout(order.getStatusCheckout())
-//                    .paymentMethod(order.getPaymentMethod())
-//                    .date(order.getDate())
-//                    .totalAmount(BigDecimal.valueOf(order.getTotalAmount()))
-//                    .discount(BigDecimal.valueOf(order.getDiscount()))
-//                    .total(BigDecimal.valueOf(order.getTotal()))
-//                    .note(order.getNote())
-//                    .orderDetailResponses(orderListDetailDtos)
-//                    .build();
-//        }
-        return null;
+    public OrderDetailResponse getOrderDetailByOrderId(String orderId) {
+        Optional<OrderDetail> optionalOrderDetail = orderDetailRepository.findByOrderId(orderId);
+
+        OrderDetail orderDetail = optionalOrderDetail.get();
+        return OrderDetailResponse.builder()
+                .id(orderDetail.getId())
+                .productId(orderDetail.getProductId())
+                .productName(orderDetail.getProductName())
+                .quantity(orderDetail.getQuantity())
+                .price(orderDetail.getPrice())
+                .totalAmount(orderDetail.getTotalAmount())
+                .build();
     }
 
     @Transactional(readOnly = true)
     public List<OrderResponse> isCustomerExisting(List<String> customerId) {
-//        List<Order> orders = orderRepository.findAllById(customerId);
-//
-//        List<OrderResponse> orderResponses = new ArrayList<>();
-//
-//        for (Order order : orders) {
-//            if (order == null) {
-//                OrderResponse orderResponse = OrderResponse.builder()
-//                        .customerId(null).build();
-//                orderResponses.add(orderResponse);
-//            } else {
-//                List<OrderListDetailDto> orderListDetailDtos = order.getOrderList().stream()
-//                        .map(this::convertToOrderListDetailDto)
-//                        .collect(Collectors.toList());
-//                OrderResponse orderResponse = OrderResponse.builder()
-//                        .id(order.getId())
-//                        .customerId(order.getCustomerId())
-//                        .phoneNumber(order.getPhoneNumber())
-//                        .statusHanle(order.getStatusHandle())
-//                        .statusCheckout(order.getStatusCheckout())
-//                        .paymentMethod(order.getPaymentMethod())
-//                        .date(order.getDate())
-//                        .totalAmount(BigDecimal.valueOf(order.getTotalAmount()))
-//                        .discount(BigDecimal.valueOf(order.getDiscount()))
-//                        .total(BigDecimal.valueOf(order.getTotal()))
-//                        .note(order.getNote())
-//                        .orderDetailResponses(orderListDetailDtos)
-//                        .build();
-//                orderResponses.add(orderResponse);
-//            }
-//
-//        }
-//        return orderResponses;
+        // List<Order> orders = orderRepository.findAllById(customerId);
+        //
+        // List<OrderResponse> orderResponses = new ArrayList<>();
+        //
+        // for (Order order : orders) {
+        // if (order == null) {
+        // OrderResponse orderResponse = OrderResponse.builder()
+        // .customerId(null).build();
+        // orderResponses.add(orderResponse);
+        // } else {
+        // List<OrderListDetailDto> orderListDetailDtos = order.getOrderList().stream()
+        // .map(this::convertToOrderListDetailDto)
+        // .collect(Collectors.toList());
+        // OrderResponse orderResponse = OrderResponse.builder()
+        // .id(order.getId())
+        // .customerId(order.getCustomerId())
+        // .phoneNumber(order.getPhoneNumber())
+        // .statusHanle(order.getStatusHandle())
+        // .statusCheckout(order.getStatusCheckout())
+        // .paymentMethod(order.getPaymentMethod())
+        // .date(order.getDate())
+        // .totalAmount(BigDecimal.valueOf(order.getTotalAmount()))
+        // .discount(BigDecimal.valueOf(order.getDiscount()))
+        // .total(BigDecimal.valueOf(order.getTotal()))
+        // .note(order.getNote())
+        // .orderDetailResponses(orderListDetailDtos)
+        // .build();
+        // orderResponses.add(orderResponse);
+        // }
+        //
+        // }
+        // return orderResponses;
 
         return null;
     }
 
-    public List<OrderResponse> getOrderByCustomerId(String customerId)
-    {
+    public List<OrderResponse> getOrderByCustomerId(String customerId) {
         List<Order> orders = orderRepository.findByCustomerId(customerId);
 
         List<OrderResponse> orderResponses = new ArrayList<>();
-        for(int i = 0; i < orders.size(); i++)
-        {
+        for (int i = 0; i < orders.size(); i++) {
             OrderResponse orderResponse = OrderResponse.builder()
                     .id(orders.get(i).getId())
                     .customerId(orders.get(i).getCustomerId())
@@ -417,16 +402,14 @@ public class OrderServiceV1 {
                     .build();
             orderResponses.add(orderResponse);
         }
-        return  orderResponses;
+        return orderResponses;
     }
 
-    public List<OrderResponse> getOrderByCustomerPhoneNumber(String customerPhoneNumber)
-    {
+    public List<OrderResponse> getOrderByCustomerPhoneNumber(String customerPhoneNumber) {
         List<Order> orders = orderRepository.findByPhoneNumber(customerPhoneNumber);
 
         List<OrderResponse> orderResponses = new ArrayList<>();
-        for(int i = 0; i < orders.size(); i++)
-        {
+        for (int i = 0; i < orders.size(); i++) {
             OrderResponse orderResponse = OrderResponse.builder()
                     .id(orders.get(i).getId())
                     .customerId(orders.get(i).getCustomerId())
@@ -443,7 +426,7 @@ public class OrderServiceV1 {
                     .build();
             orderResponses.add(orderResponse);
         }
-        return  orderResponses;
+        return orderResponses;
     }
 
     private OrderListDetailDto convertToOrderListDetailDto(OrderDetail orderDetail) {
