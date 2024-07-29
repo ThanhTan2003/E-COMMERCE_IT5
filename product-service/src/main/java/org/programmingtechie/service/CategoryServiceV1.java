@@ -51,12 +51,12 @@ public class CategoryServiceV1 {
         return category.get();
     }
 
-    public Category getCategoryByStatusBusiness(String statusBusiness) {
-        Optional<Category> optionalCategory = categoryRepository.findByStatusBusiness(statusBusiness);
+    public List<Category> getCategoryByStatusBusiness(String statusBusiness) {
+        List<Category> optionalCategory = categoryRepository.findByStatusBusiness(statusBusiness);
         if (optionalCategory.isEmpty()) {
             throw new IllegalArgumentException("Không tìm thấy dữ liệu!");
         }
-        return optionalCategory.get();
+        return optionalCategory;
     }
 
     public void updateCategory(String id, CategoryRequest categoryRequest) {

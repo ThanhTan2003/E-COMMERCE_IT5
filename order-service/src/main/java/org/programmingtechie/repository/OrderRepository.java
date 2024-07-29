@@ -10,7 +10,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     List<Order> findByCustomerId(String customerId);
 
     List<Order> findByPhoneNumber(String phoneNumber);
-
+    
     List<Order> findByStatusCheckout(String statusCheckout);
 
     List<Order> findByStatusHandle(String statusHandle);

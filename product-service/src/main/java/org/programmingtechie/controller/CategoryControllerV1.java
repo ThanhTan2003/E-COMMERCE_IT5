@@ -39,7 +39,7 @@ public class CategoryControllerV1 {
 
     @PostMapping("/statusBusiness")
     @ResponseStatus(HttpStatus.OK)
-    public Category getCategoryByStatusBusiness(@RequestBody String statusBusiness) {
+    public List<Category> getCategoryByStatusBusiness(@RequestBody String statusBusiness) {
         return categoryService.getCategoryByStatusBusiness(statusBusiness);
     }
 

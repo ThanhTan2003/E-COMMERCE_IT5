@@ -5,9 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.programmingtechie.DisplayFormat.CustomDoubleSerializer;
 
 import java.math.BigDecimal;
+
+import org.programmingtechie.displayformat.CustomDoubleSerializer;
 
 @AllArgsConstructor
 @NoArgsConstructor
