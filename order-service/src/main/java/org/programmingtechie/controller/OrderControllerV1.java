@@ -3,6 +3,7 @@ package org.programmingtechie.controller;
 import java.util.List;
 
 import org.programmingtechie.dto.request.OrderRequest;
+import org.programmingtechie.dto.response.OrderDetailResponse;
 import org.programmingtechie.dto.response.OrderResponse;
 import org.programmingtechie.model.Order;
 import org.programmingtechie.service.OrderServiceV1;
@@ -72,6 +73,18 @@ public class OrderControllerV1 {
     @ResponseStatus(HttpStatus.OK)
     public List<OrderResponse> getOrderByCustomerPhoneNumber(@RequestParam String customerPhoneNumber) {
         return orderService.getOrderByCustomerPhoneNumber(customerPhoneNumber);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public OrderDetailResponse getOrderDetailByOrderId(@RequestParam String orderId) {
+        return orderService.getOrderDetailByOrderId(orderId);
+    }
+
+    @PostMapping("/orderId")
+    @ResponseStatus(HttpStatus.OK)
+    public OrderDetailResponse getOrderDetailByOrderIdBody(@RequestBody String orderId) {
+        return orderService.getOrderDetailByOrderId(orderId);
     }
 
 }
