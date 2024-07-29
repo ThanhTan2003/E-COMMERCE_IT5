@@ -1,4 +1,4 @@
-package org.programmingtechie.dto;
+package org.programmingtechie.dto.response;
 
 import lombok.*;
 

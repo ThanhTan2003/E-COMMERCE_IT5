@@ -3,9 +3,12 @@ package org.programmingtechie.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.programmingtechie.dto.CategoryRequest;
+import org.programmingtechie.dto.request.CategoryRequest;
+import org.programmingtechie.dto.response.CategoryListProductsResponse;
 import org.programmingtechie.model.Category;
+import org.programmingtechie.model.Product;
 import org.programmingtechie.repository.CategoryRepository;
+import org.programmingtechie.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CategoryServiceV1 {
 
     final CategoryRepository categoryRepository;
+    final ProductRepository productRepository;
 
     public void createCategory(CategoryRequest categoryRequest) {
         validCheckCategoryRequest(categoryRequest);
@@ -84,4 +88,16 @@ public class CategoryServiceV1 {
         }
     }
 
+    public CategoryListProductsResponse getListProductsById(String id)
+    {
+        Optional<Category> category = categoryRepository.findById(id);
+
+        List<Product> productList = productRepository.findByCategoryId(id);
+
+        return CategoryListProductsResponse.builder()
+                .category(category.get())
+                .quantity(productList.size())
+                .productList(productList)
+                .build();
+    }
 }

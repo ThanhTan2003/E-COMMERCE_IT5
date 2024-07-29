@@ -1,18 +1,16 @@
-package org.programmingtechie.dto;
+package org.programmingtechie.dto.request;
 
 import lombok.*;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ProductResponse {
-    private String id;
+public class ProductRequest {
     private String name;
     private String categoryId;
-    private String categoryName;
     private String description;
     private Double price;
     private String statusBusiness;
-    private Boolean isExisting;
+    private String statusInStock;
 }
