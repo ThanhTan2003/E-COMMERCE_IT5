@@ -318,6 +318,12 @@ public class InventoryServiceV1 {
     // Xuất kho sản phẩm khi order-service gọi đến
     public Boolean exportProduct(List<ExportProductRequest> exportProductRequest) {
 
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         if (exportProductRequest == null || exportProductRequest.isEmpty()) {
             throw new IllegalArgumentException("Danh sách xuất hàng không được rỗng.");
         }

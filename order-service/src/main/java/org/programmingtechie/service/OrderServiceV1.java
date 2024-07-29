@@ -440,4 +440,14 @@ public class OrderServiceV1 {
         orderListDetailDto.setTotalAmount(orderDetail.getTotalAmount());
         return orderListDetailDto;
     }
+
+    public OrderResponse findFirstOrderByCustomerId(String id) {
+        Optional<Order> order = orderRepository.findFirstOrderByCustomerId(id);
+        if(order.isEmpty())
+            return null;
+        return OrderResponse.builder()
+                .id(order.get().getId())
+                .date(order.get().getDate())
+                .build();
+    }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.programmingtechie.dto.request.ProductRequest;
 import org.programmingtechie.dto.response.ProductResponse;
 import org.programmingtechie.model.Product;
+import org.programmingtechie.service.CategoryServiceV1;
 import org.programmingtechie.service.ProductServiceV1;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductControllerV1 {
     final ProductServiceV1 productService;
+    final CategoryServiceV1 categoryServiceV1;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,14 +47,14 @@ public class ProductControllerV1 {
 
     @GetMapping("/category-id/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Product> getProductByCategoryId(@PathVariable String id) {
-        return productService.getProductByCategoryId(id);
+    public List<ProductResponse> getProductByCategoryId(@PathVariable String id) {
+        return categoryServiceV1.getListProductsById(id).getProductList();
     }
 
     @PostMapping("/category-id")
     @ResponseStatus(HttpStatus.OK)
-    public List<Product> getProductByCategoryId1(@RequestBody String categoryId) {
-        return productService.getProductByCategoryId(categoryId);
+    public List<ProductResponse> getProductByCategoryId1(@RequestBody String categoryId) {
+        return categoryServiceV1.getListProductsById(categoryId).getProductList();
     }
 
     @PostMapping("/status-business")

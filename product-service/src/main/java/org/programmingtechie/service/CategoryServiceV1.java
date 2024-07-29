@@ -1,10 +1,13 @@
 package org.programmingtechie.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.programmingtechie.dto.request.CategoryRequest;
 import org.programmingtechie.dto.response.CategoryListProductsResponse;
+import org.programmingtechie.dto.response.CategoryResponse;
+import org.programmingtechie.dto.response.ProductResponse;
 import org.programmingtechie.model.Category;
 import org.programmingtechie.model.Product;
 import org.programmingtechie.repository.CategoryRepository;
@@ -82,28 +85,61 @@ public class CategoryServiceV1 {
     }
 
     public void deleteCategory(String id) {
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
 
-        if (optionalCategory.isPresent()) {
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+        if(optionalCategory.isEmpty())
+            throw new IllegalArgumentException("Thể loại không hợp lệ!");
+
+        List<Product> product = productRepository.findByCategoryId(id);
+        if(!product.isEmpty())
+            throw new IllegalArgumentException("Không thể xóa loại phẩm do ràng buộc dữ liệu!");
+
+        try
+        {
             categoryRepository.deleteById(id);
 
             log.info("Category {} is deleted", id);
-        } else {
-            log.error("Category with ID {} not found", id);
-            throw new IllegalArgumentException("Category with ID " + id + " not found");
         }
+        catch (Exception e)
+        {
+            throw new IllegalArgumentException("Không thể xóa loại phẩm!");
+        }
+
     }
 
     public CategoryListProductsResponse getListProductsById(String id)
     {
         Optional<Category> category = categoryRepository.findById(id);
 
+        CategoryResponse categoryResponse = CategoryResponse.builder()
+                .id(category.get().getId())
+                .name(category.get().getName())
+                .statusBusiness(category.get().getStatusBusiness())
+                .build();
+
         List<Product> productList = productRepository.findByCategoryId(id);
-      
+
+        List<ProductResponse> productResponses = new ArrayList<>();
+
+        for (Product product: productList)
+        {
+            ProductResponse productResponse = ProductResponse.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .categoryId(product.getCategoryId())
+                    .categoryName(category.get().getName())
+                    .description(product.getDescription())
+                    .price(product.getPrice())
+                    .statusBusiness(product.getStatusBusiness())
+                    .isExisting(true)
+                    .build();
+            productResponses.add(productResponse);
+        }
+        
         return CategoryListProductsResponse.builder()
-                .category(category.get())
+                .category(categoryResponse)
                 .quantity(productList.size())
-                .productList(productList)
+                .productList(productResponses)
                 .build();
     }
 }
