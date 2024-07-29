@@ -1,12 +1,10 @@
 package org.programmingtechie.service;
 
-import java.math.BigDecimal;
 import java.rmi.AlreadyBoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.programmingtechie.dto.request.ExportProductRequest;
 import org.programmingtechie.dto.request.OrderListDetailDto;
@@ -19,11 +17,9 @@ import org.programmingtechie.model.Order;
 import org.programmingtechie.model.OrderDetail;
 import org.programmingtechie.repository.OrderDetailRepository;
 import org.programmingtechie.repository.OrderRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -196,7 +192,7 @@ public class OrderServiceV1 {
         }
         orderRequest.setTotal(orderRequest.getTotalAmount() - orderRequest.getDiscount());
 
-        //
+        //Tạo hóa đơn
         Order order = Order.builder()
                 .customerId(orderRequest.getCustomerId())
                 .phoneNumber(orderRequest.getPhoneNumber())
@@ -208,9 +204,9 @@ public class OrderServiceV1 {
                 .total(orderRequest.getTotal())
                 .note(orderRequest.getNote())
                 .build();
-        orderRepository.save(order);
+        
 
-        //
+        //Tạo chi tiết hóa đơn
         List<OrderDetail> orderDetails = new ArrayList<>();
         for (OrderListDetailDto orderListDetailDto : orderRequest.getOrderListDetailDto()) {
             OrderDetail orderDetail = OrderDetail.builder()
@@ -222,10 +218,12 @@ public class OrderServiceV1 {
                     .totalAmount(orderListDetailDto.getTotalAmount())
                     .build();
             orderDetails.add(orderDetail);
-            orderDetailRepository.save(orderDetail);
+           // orderDetailRepository.save(orderDetail);
         }
+        order.setOrderList(orderDetails);
+        orderRepository.save(order);
 
-        //
+        //Lấy danh sách chi tiết đơn hàng
         List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
         for(OrderDetail orderDetail : orderDetails)
         {
@@ -241,7 +239,7 @@ public class OrderServiceV1 {
             orderDetailResponses.add(orderDetailResponse);
         }
 
-        //
+        //Hiển thị chi tiết đơn hàng sau khi đặt xong
         OrderResponse orderResponse = OrderResponse.builder()
                 .id(order.getId())
                 .customerId(customerExistingResponse.getId())
@@ -393,6 +391,58 @@ public class OrderServiceV1 {
 //        return orderResponses;
 
         return null;
+    }
+
+    public List<OrderResponse> getOrderByCustomerId(String customerId)
+    {
+        List<Order> orders = orderRepository.findByCustomerId(customerId);
+
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        for(int i = 0; i < orders.size(); i++)
+        {
+            OrderResponse orderResponse = OrderResponse.builder()
+                    .id(orders.get(i).getId())
+                    .customerId(orders.get(i).getCustomerId())
+                    .customerName(orders.get(i).getCustomerName())
+                    .phoneNumber(orders.get(i).getPhoneNumber())
+                    .statusHanle(orders.get(i).getStatusHandle())
+                    .statusCheckout(orders.get(i).getStatusCheckout())
+                    .paymentMethod(orders.get(i).getPaymentMethod())
+                    .date(orders.get(i).getDate())
+                    .note(orders.get(i).getNote())
+                    .totalAmount(orders.get(i).getTotalAmount())
+                    .discount(orders.get(i).getDiscount())
+                    .total(orders.get(i).getTotal())
+                    .build();
+            orderResponses.add(orderResponse);
+        }
+        return  orderResponses;
+    }
+
+    public List<OrderResponse> getOrderByCustomerPhoneNumber(String customerPhoneNumber)
+    {
+        List<Order> orders = orderRepository.findByPhoneNumber(customerPhoneNumber);
+
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        for(int i = 0; i < orders.size(); i++)
+        {
+            OrderResponse orderResponse = OrderResponse.builder()
+                    .id(orders.get(i).getId())
+                    .customerId(orders.get(i).getCustomerId())
+                    .customerName(orders.get(i).getCustomerName())
+                    .phoneNumber(orders.get(i).getPhoneNumber())
+                    .statusHanle(orders.get(i).getStatusHandle())
+                    .statusCheckout(orders.get(i).getStatusCheckout())
+                    .paymentMethod(orders.get(i).getPaymentMethod())
+                    .date(orders.get(i).getDate())
+                    .note(orders.get(i).getNote())
+                    .totalAmount(orders.get(i).getTotalAmount())
+                    .discount(orders.get(i).getDiscount())
+                    .total(orders.get(i).getTotal())
+                    .build();
+            orderResponses.add(orderResponse);
+        }
+        return  orderResponses;
     }
 
     private OrderListDetailDto convertToOrderListDetailDto(OrderDetail orderDetail) {

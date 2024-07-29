@@ -62,16 +62,16 @@ public class OrderControllerV1 {
         return orderService.getAllOrder();
     }
 
-    @GetMapping("/is-customer-existing")
+    @GetMapping("/customer-id")
     @ResponseStatus(HttpStatus.OK)
-    public List<OrderResponse> isExisting(@RequestParam List<String> list_product_id) {
-        return orderService.isCustomerExisting(list_product_id);
+    public List<OrderResponse> getOrderByCustomerId(@RequestParam String customerId) {
+        return orderService.getOrderByCustomerId(customerId);
     }
 
-    @GetMapping("/is-customer-existing/single")
+    @GetMapping("/customer-phone")
     @ResponseStatus(HttpStatus.OK)
-    public OrderResponse isExisting(@RequestParam String list_product_id) {
-        return orderService.isCustomerExisting(list_product_id);
+    public List<OrderResponse> getOrderByCustomerPhoneNumber(@RequestParam String customerPhoneNumber) {
+        return orderService.getOrderByCustomerPhoneNumber(customerPhoneNumber);
     }
 
 }

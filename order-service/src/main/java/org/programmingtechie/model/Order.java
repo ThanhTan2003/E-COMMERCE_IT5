@@ -27,6 +27,9 @@ public class Order {
     private String phoneNumber;
 
     @Column(nullable = false, length = 100)
+    private String customerName;
+
+    @Column(nullable = false, length = 100)
     private String statusHandle;
 
     @Column(nullable = false, length = 100)
