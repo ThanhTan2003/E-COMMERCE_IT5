@@ -14,9 +14,6 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // Liệt kê sản phẩm theo mã loại sản phẩm
     List<Product> findByCategoryId(String categoryId);
 
-    // Liệt kê sản phẩm theo tên loại sản phẩm
-    List<Product> findByCategoryName(String categoryName);
-
     // Liệt kê sản phẩm theo trạng thái kinh doanh
     List<Product> findByStatusBusiness(String statusBusiness);
 

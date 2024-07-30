@@ -77,8 +77,8 @@ public class OrderControllerV1 {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public OrderDetailResponse getOrderDetailByOrderId(@RequestParam String orderId) {
-        return orderService.getOrderDetailByOrderId(orderId);
+    public OrderDetailResponse getOrderDetailByOrderId(@RequestParam String id) {
+        return orderService.getOrderDetailByOrderId(id);
     }
 
     @PostMapping("/orderId")

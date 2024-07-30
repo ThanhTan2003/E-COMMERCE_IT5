@@ -16,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import io.opentracing.*;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,16 +30,16 @@ import java.util.Optional;
 public class CustomerServiceV1 {
     final CustomerRepository customerRepository;
     final WebClient.Builder webClientBuilder;
-    final Tracer tracer;
+//    final Tracer tracer;
 
-    public CustomerServiceV1(Tracer tracer){
-        this.customerRepository = null;
-        this.webClientBuilder = null;
-        this.tracer = tracer;
-    }
+//    public CustomerServiceV1(Tracer tracer){
+//        this.customerRepository = null;
+//        this.webClientBuilder = null;
+//        this.tracer = tracer;
+//    }
 
     public void createCustomer(CustomerRequest customerRequest) {
-        Span span = tracer.buildSpan("createCustomer").start();
+//        Span span = tracer.buildSpan("createCustomer").start();
         validCheckCustomerRequest(customerRequest);
 
         checkUniqueCustomerRequest(customerRequest);
@@ -55,7 +54,7 @@ public class CustomerServiceV1 {
                 .build();
         customerRepository.save(customer);
 
-        span.finish();
+//        span.finish();
     }
 
     void validCheckCustomerRequest(CustomerRequest customerRequest) {
@@ -338,13 +337,10 @@ public class CustomerServiceV1 {
         } catch (WebClientResponseException e) {
             String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(),
                     "quản lý đơn hàng (order-service)");
-            log.error("ERROR - Xảy ra lỗi khi giao tiếp với order-service: Status code - {}, Body - {}",
-                    e.getStatusCode(), errorMessage);
+            log.error("ERROR - Xảy ra lỗi khi giao tiếp với order-service: Status code - {}, Body - {}", e.getStatusCode(), errorMessage);
             throw new IllegalArgumentException(errorMessage);
         } catch (Exception e) {
-            log.error(
-                    "ERROR: Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. "
-                            + e.getMessage());
+            log.error("ERROR: Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. " + e.getMessage());
             throw new IllegalStateException(
                     "Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. ");
         }

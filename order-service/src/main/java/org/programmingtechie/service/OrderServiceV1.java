@@ -1,10 +1,7 @@
 package org.programmingtechie.service;
 
 import java.rmi.AlreadyBoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.programmingtechie.dto.request.ExportProductRequest;
@@ -180,6 +177,8 @@ public class OrderServiceV1 {
                     .build();
         }).toList();
 
+        String orderId = UUID.randomUUID().toString();
+
         // Yêu cầu inventory - service kiểm tra thông tin đặt hàng và xuất kho
         exportProductRequest(exportProductRequests);
 
@@ -201,6 +200,7 @@ public class OrderServiceV1 {
 
         // Tạo hóa đơn
         Order order = Order.builder()
+                .id(orderId)
                 .customerId(orderRequest.getCustomerId())
                 .customerName(customerExistingResponse.getFullName())
                 .phoneNumber(orderRequest.getPhoneNumber())
@@ -343,44 +343,6 @@ public class OrderServiceV1 {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public List<OrderResponse> isCustomerExisting(List<String> customerId) {
-        // List<Order> orders = orderRepository.findAllById(customerId);
-        //
-        // List<OrderResponse> orderResponses = new ArrayList<>();
-        //
-        // for (Order order : orders) {
-        // if (order == null) {
-        // OrderResponse orderResponse = OrderResponse.builder()
-        // .customerId(null).build();
-        // orderResponses.add(orderResponse);
-        // } else {
-        // List<OrderListDetailDto> orderListDetailDtos = order.getOrderList().stream()
-        // .map(this::convertToOrderListDetailDto)
-        // .collect(Collectors.toList());
-        // OrderResponse orderResponse = OrderResponse.builder()
-        // .id(order.getId())
-        // .customerId(order.getCustomerId())
-        // .phoneNumber(order.getPhoneNumber())
-        // .statusHanle(order.getStatusHandle())
-        // .statusCheckout(order.getStatusCheckout())
-        // .paymentMethod(order.getPaymentMethod())
-        // .date(order.getDate())
-        // .totalAmount(BigDecimal.valueOf(order.getTotalAmount()))
-        // .discount(BigDecimal.valueOf(order.getDiscount()))
-        // .total(BigDecimal.valueOf(order.getTotal()))
-        // .note(order.getNote())
-        // .orderDetailResponses(orderListDetailDtos)
-        // .build();
-        // orderResponses.add(orderResponse);
-        // }
-        //
-        // }
-        // return orderResponses;
-
-        return null;
-    }
-
     public List<OrderResponse> getOrderByCustomerId(String customerId) {
         List<Order> orders = orderRepository.findByCustomerId(customerId);
 
@@ -443,11 +405,9 @@ public class OrderServiceV1 {
 
     public OrderResponse findFirstOrderByCustomerId(String id) {
         Optional<Order> order = orderRepository.findFirstOrderByCustomerId(id);
-        if(order.isEmpty())
-            return null;
-        return OrderResponse.builder()
-                .id(order.get().getId())
-                .date(order.get().getDate())
-                .build();
+        return order.map(value -> OrderResponse.builder()
+                .id(value.getId())
+                .date(value.getDate())
+                .build()).orElse(null);
     }
 }

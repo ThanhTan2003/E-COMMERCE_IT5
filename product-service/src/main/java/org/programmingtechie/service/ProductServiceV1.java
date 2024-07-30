@@ -34,13 +34,13 @@ public class ProductServiceV1 {
 
     private final Tracer tracer;
 
-    public ProductServiceV1(Tracer tracer) {
-        this.productRepository = null;
-        this.categoryRepository = null;
-        this.webClientBuilder = null;
-        this.tracer = tracer;
-    }
-    
+//    public ProductServiceV1(Tracer tracer) {
+//        this.productRepository = null;
+//        this.categoryRepository = null;
+//        this.webClientBuilder = null;
+//        this.tracer = tracer;
+//    }
+
     // Tạo mới sản phẩm
     public void createProduct(ProductRequest productRequest) {
         Span span = tracer.buildSpan("createProduct").start();
@@ -189,14 +189,6 @@ public class ProductServiceV1 {
         return products;
     }
 
-    public List<Product> getProductByCategoryName(String categoryName) {
-        List<Product> products = productRepository.findByCategoryName(categoryName);
-        if (products.isEmpty()) {
-            throw new IllegalArgumentException("Không tìm thấy thông tin sản phẩm!");
-        }
-        return products;
-    }
-
     // Cập nhật sản phẩm
     public void updateProduct(String id, ProductRequest productRequest) {
         validCheckProductRequest(productRequest);
@@ -300,36 +292,4 @@ public class ProductServiceV1 {
         }
         return productResponses;
     }
-
-    // @Transactional(readOnly = true)
-    // public List<ProductResponse> isExisting(List<String> id) {
-    // List<Product> products = productRepository.findAllById(id);
-    // List<ProductResponse> productResponses = new ArrayList<>();
-
-    // int index = 0;
-
-    // for (ProductResponse productExistingResponse : productResponses) {
-    // if (products.get(index) == null) {
-    // productExistingResponse.setIsExisting(false);
-    // } else {
-    // productExistingResponse.setId(products.get(index).getId());
-    // productExistingResponse.setName(products.get(index).getName());
-    // productExistingResponse.setCategoryId(products.get(index).getCategoryId());
-
-    // Category category =
-    // categoryRepository.findById(products.get(index).getCategoryId()).get();
-
-    // productExistingResponse.setCategoryName(category != null ? category.getName()
-    // : "Chưa xác định");
-
-    // productExistingResponse.setIsExisting(true);
-    // productExistingResponse.setStatusBusiness(products.get(index).getStatusBusiness());
-
-    // index++;
-
-    // }
-    // }
-
-    // return productResponses;
-    // }
 }

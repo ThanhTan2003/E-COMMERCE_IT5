@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ExportProductRequest {
+
     private String productId;
 
     private String productName;

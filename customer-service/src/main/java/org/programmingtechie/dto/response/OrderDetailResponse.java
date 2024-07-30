@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.programmingtechie.DisplayFormat.CustomDoubleDeserializer;
-import org.programmingtechie.DisplayFormat.CustomDoubleSerializer;
+import org.programmingtechie.displayformat.CustomDoubleDeserializer;
+import org.programmingtechie.displayformat.CustomDoubleSerializer;
 
 @AllArgsConstructor
 @NoArgsConstructor

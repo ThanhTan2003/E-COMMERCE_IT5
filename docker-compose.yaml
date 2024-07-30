@@ -106,10 +106,6 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka
-      - OTEL_SERVICE_NAME=product-service
-      - OTEL_METRICS_EXPORTER=none
-      - OTEL_TRACES_EXPORTER=jaeger
-      - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger:14250
     env_file:
       - variables.env
     ports:
@@ -223,8 +219,9 @@ services:
       retries: 5
 
   jaeger:
-    container_name: jaeger
     image: jaegertracing/all-in-one:latest
     ports:
+      - "4318:4318"
       - "16686:16686"
-      - "14250:14250"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
