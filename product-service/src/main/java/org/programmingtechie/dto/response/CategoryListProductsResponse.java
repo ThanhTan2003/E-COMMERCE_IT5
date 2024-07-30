@@ -1,11 +1,6 @@
 package org.programmingtechie.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.programmingtechie.model.Category;
-import org.programmingtechie.model.Product;
+import lombok.*;
 
 import java.util.List;
 

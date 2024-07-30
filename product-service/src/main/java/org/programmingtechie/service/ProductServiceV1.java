@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+
+import io.opentracing.*;
+
 import org.programmingtechie.dto.response.InventoryResponse;
 import org.programmingtechie.dto.request.ProductRequest;
 import org.programmingtechie.dto.response.ProductResponse;
@@ -29,8 +32,19 @@ public class ProductServiceV1 {
 
     final WebClient.Builder webClientBuilder;
 
+    private final Tracer tracer;
+
+    public ProductServiceV1(Tracer tracer) {
+        this.productRepository = null;
+        this.categoryRepository = null;
+        this.webClientBuilder = null;
+        this.tracer = tracer;
+    }
+    
     // Tạo mới sản phẩm
     public void createProduct(ProductRequest productRequest) {
+        Span span = tracer.buildSpan("createProduct").start();
+
         validCheckProductRequest(productRequest);
         if (productRepository.existsByName(productRequest.getName())) {
             throw new IllegalArgumentException("Sản phẩm với tên đã tồn tại vui lòng nhập lại.");
@@ -45,6 +59,7 @@ public class ProductServiceV1 {
         productRepository.save(product);
 
         log.info("Product {} is saved", product.getId());
+        span.finish();
     }
 
     // Kiểm tra hợp lệ của mỗi trường nhập vào
@@ -232,23 +247,23 @@ public class ProductServiceV1 {
     // Kiểm tra sản phẩm có sẵn trong danh mục hay không?
     @Transactional(readOnly = true)
     public ProductResponse isExisting(String id) {
-        Optional<Product> product = productRepository.findById(id);
+        Optional<Product> optionalProduct = productRepository.findById(id);
 
-        if (product.isEmpty()) {
+        if (optionalProduct.isEmpty()) {
             return ProductResponse.builder()
                     .isExisting(false)
                     .build();
         } else {
-            Product prod = product.get();
-            Category category = categoryRepository.findById(prod.getCategoryId()).get();
+            Product product = optionalProduct.get();
+            Category category = categoryRepository.findById(product.getCategoryId()).get();
             return ProductResponse.builder()
-                    .id(prod.getId())
-                    .name(prod.getName())
-                    .categoryId(prod.getCategoryId())
+                    .id(product.getId())
+                    .name(product.getName())
+                    .categoryId(product.getCategoryId())
                     .categoryName(category.getName())
-                    .description(prod.getDescription())
-                    .price(prod.getPrice())
-                    .statusBusiness(prod.getStatusBusiness())
+                    .description(product.getDescription())
+                    .price(product.getPrice())
+                    .statusBusiness(product.getStatusBusiness())
                     .build();
         }
     }

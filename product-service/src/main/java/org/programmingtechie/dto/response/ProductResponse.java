@@ -1,8 +1,9 @@
 package org.programmingtechie.dto.response;
 
+import org.programmingtechie.displayformat.CustomDoubleSerializer;
+
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
-import org.programmingtechie.DisplayFormat.CustomDoubleSerializer;
 
 @Data
 @AllArgsConstructor
