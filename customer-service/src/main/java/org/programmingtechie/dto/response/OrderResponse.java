@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.programmingtechie.displayformat.CustomDoubleDeserializer;
 import org.programmingtechie.displayformat.CustomDoubleSerializer;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 

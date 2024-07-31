@@ -30,7 +30,6 @@ import java.util.Optional;
 public class CustomerServiceV1 {
     final CustomerRepository customerRepository;
     final WebClient.Builder webClientBuilder;
-    
 
     public void createCustomer(CustomerRequest customerRequest) {
         validCheckCustomerRequest(customerRequest);
