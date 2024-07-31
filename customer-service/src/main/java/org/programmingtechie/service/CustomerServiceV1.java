@@ -30,6 +30,8 @@ import java.util.Optional;
 public class CustomerServiceV1 {
     final CustomerRepository customerRepository;
     final WebClient.Builder webClientBuilder;
+
+    private final WebClient webClient;
 //    final Tracer tracer;
 
 //    public CustomerServiceV1(Tracer tracer){
@@ -334,6 +336,12 @@ public class CustomerServiceV1 {
                     .retrieve()
                     .bodyToMono(OrderResponse[].class)
                     .block();
+//            orderResponses = webClient.get()
+//                .uri("http://localhost:8082/api/v1/order/customer-phone",
+//                        uriBuilder -> uriBuilder.queryParam("customerPhoneNumber", phoneNumber).build())
+//                .retrieve()
+//                .bodyToMono(OrderResponse[].class)
+//                .block();
         } catch (WebClientResponseException e) {
             String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(),
                     "quản lý đơn hàng (order-service)");
