@@ -6,11 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.programmingtechie.DisplayFormat.CustomDoubleDeserializer;
-import org.programmingtechie.DisplayFormat.CustomDoubleSerializer;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.programmingtechie.displayformat.CustomDoubleDeserializer;
+import org.programmingtechie.displayformat.CustomDoubleSerializer;
 
 @AllArgsConstructor
 @NoArgsConstructor
