@@ -16,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import io.opentracing.*;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,16 +30,9 @@ import java.util.Optional;
 public class CustomerServiceV1 {
     final CustomerRepository customerRepository;
     final WebClient.Builder webClientBuilder;
-    final Tracer tracer;
-
-    public CustomerServiceV1(Tracer tracer){
-        this.customerRepository = null;
-        this.webClientBuilder = null;
-        this.tracer = tracer;
-    }
+    
 
     public void createCustomer(CustomerRequest customerRequest) {
-        Span span = tracer.buildSpan("createCustomer").start();
         validCheckCustomerRequest(customerRequest);
 
         checkUniqueCustomerRequest(customerRequest);
@@ -54,8 +46,6 @@ public class CustomerServiceV1 {
                 .gender(customerRequest.getGender())
                 .build();
         customerRepository.save(customer);
-
-        span.finish();
     }
 
     void validCheckCustomerRequest(CustomerRequest customerRequest) {

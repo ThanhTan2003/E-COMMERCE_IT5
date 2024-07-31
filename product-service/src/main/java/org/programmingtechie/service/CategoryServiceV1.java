@@ -25,7 +25,9 @@ public class CategoryServiceV1 {
     final CategoryRepository categoryRepository;
     final ProductRepository productRepository;
 
+
     public void createCategory(CategoryRequest categoryRequest) {
+
         validCheckCategoryRequest(categoryRequest);
         if (categoryRepository.existsByName(categoryRequest.getName())) {
             throw new IllegalArgumentException("Tên loại sản phẩm tồn tại vui lòng nhập lại.");
@@ -37,6 +39,7 @@ public class CategoryServiceV1 {
         categoryRepository.save(category);
 
         log.info("Category {} is saved", category.getId());
+
     }
 
     void validCheckCategoryRequest(CategoryRequest categoryRequest) {
@@ -87,28 +90,24 @@ public class CategoryServiceV1 {
     public void deleteCategory(String id) {
 
         Optional<Category> optionalCategory = categoryRepository.findById(id);
-        if(optionalCategory.isEmpty())
+        if (optionalCategory.isEmpty())
             throw new IllegalArgumentException("Thể loại không hợp lệ!");
 
         List<Product> product = productRepository.findByCategoryId(id);
-        if(!product.isEmpty())
+        if (!product.isEmpty())
             throw new IllegalArgumentException("Không thể xóa loại phẩm do ràng buộc dữ liệu!");
 
-        try
-        {
+        try {
             categoryRepository.deleteById(id);
 
             log.info("Category {} is deleted", id);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Không thể xóa loại phẩm!");
         }
 
     }
 
-    public CategoryListProductsResponse getListProductsById(String id)
-    {
+    public CategoryListProductsResponse getListProductsById(String id) {
         Optional<Category> category = categoryRepository.findById(id);
 
         CategoryResponse categoryResponse = CategoryResponse.builder()
@@ -121,8 +120,7 @@ public class CategoryServiceV1 {
 
         List<ProductResponse> productResponses = new ArrayList<>();
 
-        for (Product product: productList)
-        {
+        for (Product product : productList) {
             ProductResponse productResponse = ProductResponse.builder()
                     .id(product.getId())
                     .name(product.getName())
@@ -135,7 +133,7 @@ public class CategoryServiceV1 {
                     .build();
             productResponses.add(productResponse);
         }
-        
+
         return CategoryListProductsResponse.builder()
                 .category(categoryResponse)
                 .quantity(productList.size())

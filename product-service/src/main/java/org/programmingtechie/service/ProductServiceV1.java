@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 
-import io.opentracing.*;
-
 import org.programmingtechie.dto.response.InventoryResponse;
 import org.programmingtechie.dto.request.ProductRequest;
 import org.programmingtechie.dto.response.ProductResponse;
@@ -32,18 +30,10 @@ public class ProductServiceV1 {
 
     final WebClient.Builder webClientBuilder;
 
-    private final Tracer tracer;
 
-    public ProductServiceV1(Tracer tracer) {
-        this.productRepository = null;
-        this.categoryRepository = null;
-        this.webClientBuilder = null;
-        this.tracer = tracer;
-    }
     
     // Tạo mới sản phẩm
     public void createProduct(ProductRequest productRequest) {
-        Span span = tracer.buildSpan("createProduct").start();
 
         validCheckProductRequest(productRequest);
         if (productRepository.existsByName(productRequest.getName())) {
@@ -59,7 +49,6 @@ public class ProductServiceV1 {
         productRepository.save(product);
 
         log.info("Product {} is saved", product.getId());
-        span.finish();
     }
 
     // Kiểm tra hợp lệ của mỗi trường nhập vào
