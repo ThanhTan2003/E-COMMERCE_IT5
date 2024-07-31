@@ -328,13 +328,10 @@ public class CustomerServiceV1 {
         } catch (WebClientResponseException e) {
             String errorMessage = extractMessageFromResponse(e.getResponseBodyAsString(),
                     "quản lý đơn hàng (order-service)");
-            log.error("ERROR - Xảy ra lỗi khi giao tiếp với order-service: Status code - {}, Body - {}",
-                    e.getStatusCode(), errorMessage);
+            log.error("ERROR - Xảy ra lỗi khi giao tiếp với order-service: Status code - {}, Body - {}", e.getStatusCode(), errorMessage);
             throw new IllegalArgumentException(errorMessage);
         } catch (Exception e) {
-            log.error(
-                    "ERROR: Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. "
-                            + e.getMessage());
+            log.error("ERROR: Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. " + e.getMessage());
             throw new IllegalStateException(
                     "Dịch vụ quản lý đơn hàng (order-service) không khả dụng. Vui lòng kiểm tra và thử lại. ");
         }
