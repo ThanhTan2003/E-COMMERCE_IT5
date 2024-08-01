@@ -15,8 +15,10 @@ spec:
         app: customer-service
     spec:
       containers:
-        - name: inventory-service
-          image: thanhtantg2003/inventory-service:2.0
+        - name: customer-service
+
+
+          image: thanhtantg2003/customer-service:2.0
           ports:
             - containerPort: 8084
           env:
