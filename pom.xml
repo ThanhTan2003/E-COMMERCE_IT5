@@ -56,7 +56,7 @@
                         <image>eclipse-temurin:17.0.4.1_1-jre</image>
                     </from>
                     <to>
-                        <image>thanhtantg2003/${project.artifactId}:1.0</image>
+                        <image>thanhtantg2003/${project.artifactId}:2.0</image>
                     </to>
                 </configuration>
                 <executions>
@@ -131,6 +131,17 @@
 <!--            <groupId>io.micrometer</groupId>-->
 <!--            <artifactId>micrometer-tracing-bridge-brave</artifactId>-->
 <!--        </dependency>-->
+
+
+<!--        <dependency>-->
+<!--            <groupId>io.micrometer</groupId>-->
+<!--            <artifactId>micrometer-tracing-bridge-brave</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>io.zipkin.reporter2</groupId>-->
+<!--            <artifactId>zipkin-reporter-brave</artifactId>-->
+<!--        </dependency>-->
+
     </dependencies>
 
 </project>

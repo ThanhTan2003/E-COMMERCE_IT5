@@ -10,9 +10,6 @@ public class WebClientConfig {
     @Bean
     @LoadBalanced
     public WebClient.Builder webClientBuilder() {
-        return WebClient.builder()
-                .filters(exchangeFilterFunctions -> {
-                    exchangeFilterFunctions.add(new TraceExchangeFilterFunction());
-                });
+        return WebClient.builder();
     }
 }
