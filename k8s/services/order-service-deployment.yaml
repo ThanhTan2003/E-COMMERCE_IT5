@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: order-service
+  name: order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: thanhtantg2003/order-service:2.0
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-order:5432/order-service
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: order-service
+  name: order-service
+spec:
+  ports:
+    - port: 8082
+      targetPort: 8082
+  selector:
+    app: order-service

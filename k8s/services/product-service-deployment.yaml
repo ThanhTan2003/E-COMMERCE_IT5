@@ -1,0 +1,43 @@
+# Khai bao phien ban API va loai doi tuong
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: product-service # Gan nhan cho Deployment
+  name: product-service # Ten cua Deployment
+spec:
+  replicas: 1 # So luong pod se duoc tao ra
+  selector:
+    matchLabels:
+      app: product-service # Lua chon pod dua tren nhan
+  template:
+    metadata:
+      labels:
+        app: product-service # Gan nhan cho pod
+    spec:
+      containers:
+        - name: product-service # Ten container
+          image: thanhtantg2003/product-service:2.0 # Hinh anh container
+          ports:
+            - containerPort: 8081 # Cong container se lang nghe
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-product:5432/product-service # Bien moi truong cho URL ket noi database
+            - name: SPRING_PROFILES_ACTIVE
+              value: docker # Bien moi truong cho profile spring
+      restartPolicy: Always # Chinh sach khoi dong lai pod
+
+---
+# Khai bao phien ban API va loai doi tuong
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: product-service # Gan nhan cho Service
+  name: product-service # Ten cua Service
+spec:
+  ports:
+    - port: 8081 # Cong ma Service se lang nghe
+      targetPort: 8081 # Cong cua container se duoc chuyen tiep den
+  selector:
+    app: product-service # Lua chon pod dua tren nhan
