@@ -2,8 +2,6 @@ package org.programmingtechie.controller;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.programmingtechie.dto.request.ProductRequest;
 import org.programmingtechie.dto.response.ProductResponse;
 import org.programmingtechie.model.Product;
@@ -11,6 +9,7 @@ import org.programmingtechie.service.CategoryServiceV1;
 import org.programmingtechie.service.ProductServiceV1;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +22,7 @@ public class ProductControllerV1 {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public void createProduct(@RequestBody ProductRequest productRequest)
     {
         productService.createProduct(productRequest);
@@ -30,6 +30,7 @@ public class ProductControllerV1 {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<ProductResponse> getAllProduct()
     {
         return productService.getAllProducts();
